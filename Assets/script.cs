@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 using Newtonsoft.Json;
 using UnityEngine.Video;
+using KeepCoding;
 
 using Random = UnityEngine.Random;
 
@@ -31,10 +32,10 @@ public class DialogPart
 public class script : MonoBehaviour {
     
     //i hope this is a temporary solution cuz idk how to include contents of a json file
-    private string dialogsJson = "{\"dialogs\":[{\"name\": \"initial\", \"dialog\": [{\"text\": [\"Note from the developer: Dialogs are in WIP. Keep that in mind.\"], \"color\": 4, \"rightAlign\": false, \"style\": 0, \"anim\": false}]}]}";
+    private string dialogsJson = "{\"dialogs\":[{\"name\": \"initial\", \"dialog\": [{\"text\": [\"Dialogs are in WIP.\"], \"color\": 4, \"rightAlign\": false, \"style\": 0, \"anim\": false}]}]}";
 
     public VideoPlayer Video;
-    public VideoClip[] solveVideos = new VideoClip[64];
+    public static VideoClip[] solveVideos;
     public KMAudio Audio;
     public AudioClip[] solveAudios = new AudioClip[64];
     public GameObject videoPlayer;
@@ -613,10 +614,9 @@ public class script : MonoBehaviour {
     
     IEnumerator playRandomVideo()
     {
-        //yield return new WaitUntil(() => VideoLoader.clips != null);
         int ind = Random.Range(0, 64);
-        //Video.clip = solveVideos[ind];
-        Video.clip = VideoLoader.clips[ind];
+        if (solveVideos.IsNullOrEmpty()) solveVideos = PathManager.GetAssets<VideoClip>("ammvideo");
+        Video.clip = solveVideos[ind];
         Video.Play();
         videoPlayer.SetActive(true);
         Audio.PlaySoundAtTransform(solveAudios[ind].name, transform);
@@ -629,6 +629,11 @@ public class script : MonoBehaviour {
         done = true;
         GetComponent<KMSelectable>().OnFocus = null;
         GetComponent<KMSelectable>().OnDefocus = null;
+        StopCoroutine(onFoc());
+        StopCoroutine(onDef());
+        setState(1);
+        states[1].SetActive(false);
+        states[0].SetActive(false);
         selected = false;
         yield return playRandomVideo();
         setState(6);
@@ -1263,6 +1268,6 @@ public class script : MonoBehaviour {
             else if (state == 8) setState(7);
         }
             
-        if (Input.GetKeyDown(KeyCode.Home)) { StartCoroutine(SOLVE()); }
+        //if (Input.GetKeyDown(KeyCode.Home)) { if (!done) StartCoroutine(SOLVE()); }
     }
 }
