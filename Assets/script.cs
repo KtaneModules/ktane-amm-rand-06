@@ -35,7 +35,9 @@ public class script : MonoBehaviour {
     private string dialogsJson = "{\"dialogs\":[{\"name\": \"initial\", \"dialog\": [{\"text\": [\"Dialogs are in WIP.\"], \"color\": 4, \"rightAlign\": false, \"style\": 0, \"anim\": false}]}]}";
 
     public VideoPlayer Video;
-    public static VideoClip[] solveVideos;
+    public VideoClip[] solveVideos;
+    private static VideoClip[] externalSolveVideos;
+    private VideoClip[] assignedVideoClips;
     public KMAudio Audio;
     public AudioClip[] solveAudios = new AudioClip[64];
     public GameObject videoPlayer;
@@ -615,7 +617,12 @@ public class script : MonoBehaviour {
     IEnumerator playRandomVideo()
     {
         int ind = Random.Range(0, 64);
-        if (solveVideos.IsNullOrEmpty()) solveVideos = PathManager.GetAssets<VideoClip>("ammvideo");
+
+        if (!Application.isEditor && externalSolveVideos == null)
+            externalSolveVideos = PathManager.GetAssets<VideoClip>("ammvideo");
+
+        assignedVideoClips = !Application.isEditor ? externalSolveVideos : solveVideos;
+
         Video.clip = solveVideos[ind];
         Video.Play();
         videoPlayer.SetActive(true);
