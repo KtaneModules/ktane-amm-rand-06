@@ -4565,7 +4565,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1970082546767424
 GameObject:
   m_ObjectHideFlags: 1
@@ -4815,6 +4815,7 @@ GameObject:
   - component: {fileID: 114116743833401204}
   - component: {fileID: 114481166660659550}
   - component: {fileID: 114645239770079762}
+  - component: {fileID: 114002894623278048}
   m_Layer: 0
   m_Name: module
   m_TagString: Untagged
@@ -21736,6 +21737,17 @@ TextMesh:
   m_Color:
     serializedVersion: 2
     rgba: 4282137803
+--- !u!114 &114002894623278048
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1994720706839786}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96a2fc4ae3e690a498a0d85a2b5e0b99, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114023355395319732
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -22052,6 +22064,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 901076d40b19b5f4d8c52f29547b2eeb, type: 3}
   - {fileID: 8300000, guid: b68000e071d1e19408b9fd79037bdc21, type: 3}
   videoPlayer: {fileID: 1966080950521948}
+  Boss: {fileID: 114002894623278048}
   bombInfo: {fileID: 114116743833401204}
   lines:
   - {fileID: 102659672344667412}
@@ -22351,7 +22364,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShaderNames:
-  - KT/Mobile/DiffuseTint
+  - Sprites/Default
 --- !u!114 &114898075647178766
 MonoBehaviour:
   m_ObjectHideFlags: 1

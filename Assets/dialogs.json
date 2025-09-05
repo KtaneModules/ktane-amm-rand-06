@@ -1,0 +1,14 @@
+{"dialogs":[
+    {
+        "name": "initial",
+        "dialog": [
+            {
+                "text": ["Note from the developer: Dialogs are in WIP. Keep that in mind."],
+                "color": 4,
+                "rightAlign": false,
+                "style": 0,
+                "anim": false
+            }
+        ]
+    }
+]}
