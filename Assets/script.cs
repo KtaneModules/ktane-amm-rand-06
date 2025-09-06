@@ -37,7 +37,6 @@ public class script : MonoBehaviour {
     public VideoPlayer Video;
     public VideoClip[] solveVideos;
     private static VideoClip[] externalSolveVideos;
-    private VideoClip[] assignedVideoClips;
     public KMAudio Audio;
     public AudioClip[] solveAudios = new AudioClip[64];
     public GameObject videoPlayer;
@@ -621,9 +620,7 @@ public class script : MonoBehaviour {
         if (!Application.isEditor && externalSolveVideos == null)
             externalSolveVideos = PathManager.GetAssets<VideoClip>("ammvideo");
 
-        assignedVideoClips = !Application.isEditor ? externalSolveVideos : solveVideos;
-
-        Video.clip = solveVideos[ind];
+        Video.clip = (!Application.isEditor ? externalSolveVideos : solveVideos)[ind];
         Video.Play();
         videoPlayer.SetActive(true);
         Audio.PlaySoundAtTransform(solveAudios[ind].name, transform);
