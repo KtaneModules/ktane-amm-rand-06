@@ -296,10 +296,12 @@ public class script : MonoBehaviour {
         for (int ii = 0; ii < peakAmount; ii++)
         {
             int amp = table[ii] == 1 ? Random.Range(5000, 7500) : Random.Range(3500, 5000);
-            graphInts[(freqs[ii] - 1000) * 52 / 9000] = amp;
+            peakIds[ii] = (freqs[ii] - 1000) * 52 / 9000;
+            if (ii>0 && peakIds[ii] == peakIds[ii-1]) peakIds[ii]++;
+            graphInts[peakIds[ii]] = amp;
             peakAmps[ii] = amp;
             peakFreqs[ii] = freqs[ii];
-            peakIds[ii] = (freqs[ii] - 1000) * 52 / 9000;
+            
         }
 
         for (int i=0; i<52; i++)
@@ -841,7 +843,7 @@ public class script : MonoBehaviour {
             setState(0);
             yield return new WaitForSeconds(.2f);
             setState(1);
-            StartCoroutine(appendText("Pickup message.", offwhite));
+            //StartCoroutine(appendText("Pickup message.", offwhite));
             yield return new WaitForSeconds(3f);
             updateFace();
             StartCoroutine(cycle());
@@ -851,7 +853,7 @@ public class script : MonoBehaviour {
             yield return new WaitForSeconds(0.05f);
             distance--;
         }
-        if (distance==0) StartCoroutine(appendText("Found power source. Config: " + sourceChargeConfig, offyellow));
+        if (distance==0 && picked) StartCoroutine(appendText("Found power source. Config: " + sourceChargeConfig, offyellow));
     }
     IEnumerator holding()
     {
@@ -927,8 +929,8 @@ public class script : MonoBehaviour {
         //allDialogs = JsonConvert.DeserializeObject<DialogWrapper>(File.ReadAllText("Assets\\dialogs.json")).dialogs;
         allDialogs = JsonConvert.DeserializeObject<DialogWrapper>(dialogsJson).dialogs;
         videoPlayer.SetActive(false);
-        distance = Random.Range(150, 301) * 20;
-        //distance = 100;
+        //distance = Random.Range(150, 301) * 20;
+        distance = 100;
         AEAN = Random.Range(6000, 8000);
         BTR = Random.Range(10, 1000);
         states[0].SetActive(true);
@@ -1104,7 +1106,7 @@ public class script : MonoBehaviour {
                     }
                     case 1:
                     { //Hammer
-                        if (last == ((ABCD[3] + ABCD[33]) * (ABCD[23] + ABCD[13]) % 10) && table[3] != 0)
+                        if (last == (((ABCD[3] + ABCD[33]) * (ABCD[23] + ABCD[13])) % 10) && table[3] != 0)
                             pass(3);
                         else fail(3);
                         break;
@@ -1139,7 +1141,7 @@ public class script : MonoBehaviour {
                 {
                     case 1:
                     { //Hammer
-                        if (last == ((ABCD[6] + ABCD[36]) * (ABCD[26] + ABCD[16]) % 10) && table[6] != 0)
+                        if (last == (((ABCD[6] + ABCD[36]) * (ABCD[26] + ABCD[16])) % 10) && table[6] != 0)
                             pass(6);
                         else fail(6);
                         break;
