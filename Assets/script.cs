@@ -69,26 +69,6 @@ public class script : MonoBehaviour
     private bool selected;
     private bool done;
 
-    private readonly Color offwhite  = rgb(230, 223, 215);
-
-    private readonly Color offred    = rgb(203, 60, 60);
-    private readonly Color offyellow = rgb(236, 219, 68);
-    private readonly Color offgreen  = rgb(110, 197, 92);
-    private readonly Color offblue   = rgb(98, 139, 243);
-
-    private readonly Color offorange = rgb(220, 140, 64);
-    private readonly Color offblack  = rgb(88, 88, 88);
-    private readonly Color offbrown  = rgb(139, 76, 22);
-    private readonly Color offpurple = rgb(178, 93, 214);
-    private readonly Color offgray   = rgb(159, 156, 152);
-    private readonly Color offpink   = rgb(217, 142, 138);
-    private readonly Color offcyan   = rgb(104, 168, 168);
-    private readonly Color offjade   = rgb(106, 178, 142);
-    private readonly Color offazure  = rgb(102, 158, 193);
-    private readonly Color offrose   = rgb(168, 86, 121);
-
-    public static Color[] colorArray;
-
     private readonly float[] itemRes = { 1f, 4f, 10f, 25f, 40f, 200f, 100f, 250f, 440f, 720f, 1000f, 5000f };
 
     private readonly int[] limits = { 1000, 1600, 2300, 2600, 4100, 4900, 5600, 7200, 8200, 9100, 10000 };
@@ -138,11 +118,23 @@ public class script : MonoBehaviour
     public TextMesh inventory;
     private string sourceChargeConfig = "";
 
-
-    static Color rgb(int r, int g, int b)
-    {
-        return new Color(r / 255f, g / 255f, b / 255f);
-    }
+    public static readonly Color[] colorArray = {
+        new Color(230 / 255f, 223 / 255f, 215 / 255f),
+        new Color(203 / 255f, 60 / 255f, 60 / 255f),
+        new Color(236 / 255f, 219 / 255f, 68 / 255f),
+        new Color(110 / 255f, 197 / 255f, 92 / 255f),
+        new Color(098 / 255f, 139 / 255f, 243 / 255f),
+        new Color(220 / 255f, 140 / 255f, 64 / 255f),
+        new Color(088 / 255f, 88 / 255f, 88 / 255f),
+        new Color(139 / 255f, 76 / 255f, 22 / 255f),
+        new Color(178 / 255f, 93 / 255f, 214 / 255f),
+        new Color(159 / 255f, 156 / 255f, 152 / 255f),
+        new Color(217 / 255f, 142 / 255f, 138 / 255f),
+        new Color(104 / 255f, 168 / 255f, 168 / 255f),
+        new Color(106 / 255f, 178 / 255f, 142 / 255f),
+        new Color(102 / 255f, 158 / 255f, 193 / 255f),
+        new Color(168 / 255f, 86 / 255f, 121 / 255f)
+    };
 
     string divideBy1000(int num)
     {
@@ -215,7 +207,7 @@ public class script : MonoBehaviour
             peakShow.text = "Local peak " + page + ":\n\n" + divideBy1000(peakAmps[page]) + " dB @ " +
                             divideBy1000(peakFreqs[page]) + " kHz";
             peakList.text = (page + 1).ToString() + "/" + peakAmount;
-            for (var i = 0; i < peakAmount; i++) graph[peakIds[i]].color = i == page ? offyellow : offwhite;
+            for (var i = 0; i < peakAmount; i++) graph[peakIds[i]].color = i == page ? colorArray[2] : colorArray[0];
         }
         else
         {
@@ -369,7 +361,7 @@ public class script : MonoBehaviour
                     letters[3 * i + 0].text = "";
                     letters[3 * i + 1].text = "K";
                     letters[3 * i + 2].text = "";
-                    letters[3 * i + 1].color = offblack;
+                    letters[3 * i + 1].color = colorArray[6];
 
                     break;
                 }
@@ -378,7 +370,7 @@ public class script : MonoBehaviour
                     letters[3 * i + 0].text = "";
                     letters[3 * i + 1].text = "R";
                     letters[3 * i + 2].text = "";
-                    letters[3 * i + 1].color = offred;
+                    letters[3 * i + 1].color = colorArray[1];
                     break;
                 }
                 case 2:
@@ -386,7 +378,7 @@ public class script : MonoBehaviour
                     letters[3 * i + 0].text = "";
                     letters[3 * i + 1].text = "Y";
                     letters[3 * i + 2].text = "";
-                    letters[3 * i + 1].color = offyellow;
+                    letters[3 * i + 1].color = colorArray[2];
                     break;
                 }
                 case 3:
@@ -394,7 +386,7 @@ public class script : MonoBehaviour
                     letters[3 * i + 0].text = "";
                     letters[3 * i + 1].text = "B";
                     letters[3 * i + 2].text = "";
-                    letters[3 * i + 1].color = offblue;
+                    letters[3 * i + 1].color = colorArray[4];
                     break;
                 }
                 case 4:
@@ -402,7 +394,7 @@ public class script : MonoBehaviour
                     letters[3 * i + 0].text = "";
                     letters[3 * i + 1].text = "W";
                     letters[3 * i + 2].text = "";
-                    letters[3 * i + 1].color = offwhite;
+                    letters[3 * i + 1].color = colorArray[0];
                     break;
                 }
                 case 5:
@@ -410,7 +402,7 @@ public class script : MonoBehaviour
                     letters[3 * i + 0].text = "";
                     letters[3 * i + 1].text = "G";
                     letters[3 * i + 2].text = "";
-                    letters[3 * i + 1].color = offgreen;
+                    letters[3 * i + 1].color = colorArray[3];
                     break;
                 }
                 case 6:
@@ -418,9 +410,9 @@ public class script : MonoBehaviour
                     letters[3 * i + 0].text = "N";
                     letters[3 * i + 1].text = "K";
                     letters[3 * i + 2].text = "N";
-                    letters[3 * i + 0].color = offbrown;
-                    letters[3 * i + 1].color = offblack;
-                    letters[3 * i + 2].color = offbrown;
+                    letters[3 * i + 0].color = colorArray[7];
+                    letters[3 * i + 1].color = colorArray[6];
+                    letters[3 * i + 2].color = colorArray[7];
                     break;
                 }
                 case 7:
@@ -428,9 +420,9 @@ public class script : MonoBehaviour
                     letters[3 * i + 0].text = "R";
                     letters[3 * i + 1].text = "G";
                     letters[3 * i + 2].text = "N";
-                    letters[3 * i + 0].color = offred;
-                    letters[3 * i + 1].color = offgreen;
-                    letters[3 * i + 2].color = offbrown;
+                    letters[3 * i + 0].color = colorArray[1];
+                    letters[3 * i + 1].color = colorArray[3];
+                    letters[3 * i + 2].color = colorArray[7];
                     break;
                 }
                 case 8:
@@ -438,9 +430,9 @@ public class script : MonoBehaviour
                     letters[3 * i + 0].text = "Y";
                     letters[3 * i + 1].text = "Y";
                     letters[3 * i + 2].text = "N";
-                    letters[3 * i + 0].color = offyellow;
-                    letters[3 * i + 1].color = offyellow;
-                    letters[3 * i + 2].color = offbrown;
+                    letters[3 * i + 0].color = colorArray[2];
+                    letters[3 * i + 1].color = colorArray[2];
+                    letters[3 * i + 2].color = colorArray[7];
                     break;
                 }
                 case 9:
@@ -448,9 +440,9 @@ public class script : MonoBehaviour
                     letters[3 * i + 0].text = "P";
                     letters[3 * i + 1].text = "R";
                     letters[3 * i + 2].text = "N";
-                    letters[3 * i + 0].color = offpurple;
-                    letters[3 * i + 1].color = offred;
-                    letters[3 * i + 2].color = offbrown;
+                    letters[3 * i + 0].color = colorArray[8];
+                    letters[3 * i + 1].color = colorArray[1];
+                    letters[3 * i + 2].color = colorArray[7];
                     break;
                 }
                 case 10:
@@ -458,9 +450,9 @@ public class script : MonoBehaviour
                     letters[3 * i + 0].text = "N";
                     letters[3 * i + 1].text = "K";
                     letters[3 * i + 2].text = "R";
-                    letters[3 * i + 0].color = offbrown;
-                    letters[3 * i + 1].color = offblack;
-                    letters[3 * i + 2].color = offred;
+                    letters[3 * i + 0].color = colorArray[7];
+                    letters[3 * i + 1].color = colorArray[6];
+                    letters[3 * i + 2].color = colorArray[1];
                     break;
                 }
                 case 11:
@@ -468,14 +460,14 @@ public class script : MonoBehaviour
                     letters[3 * i + 0].text = "G";
                     letters[3 * i + 1].text = "K";
                     letters[3 * i + 2].text = "R";
-                    letters[3 * i + 0].color = offgreen;
-                    letters[3 * i + 1].color = offblack;
-                    letters[3 * i + 2].color = offred;
+                    letters[3 * i + 0].color = colorArray[3];
+                    letters[3 * i + 1].color = colorArray[6];
+                    letters[3 * i + 2].color = colorArray[1];
                     break;
                 }
             }
 
-            brackets[i].color = (i == wireComposerIndex) ? offyellow : offwhite;
+            brackets[i].color = (i == wireComposerIndex) ? colorArray[2] : colorArray[0];
         }
     }
 
@@ -508,17 +500,17 @@ public class script : MonoBehaviour
         if (avgAmp < 2800)
         {
             avgJudg.text = "PASS";
-            avgJudg.color = offgreen;
+            avgJudg.color = colorArray[3];
         }
         else if (avgAmp < 3200)
         {
             avgJudg.text = "WARN";
-            avgJudg.color = offyellow;
+            avgJudg.color = colorArray[2];
         }
         else
         {
             avgJudg.text = "FAIL";
-            avgJudg.color = offred;
+            avgJudg.color = colorArray[1];
         }
     }
 
@@ -633,7 +625,7 @@ public class script : MonoBehaviour
             graphInts[peakIds[ind]] = Random.Range(2000, 2800);
             avgAmp += (graphInts[peakIds[ind]] - old) / 52;
             deleteItem(ind);
-            for (int i = 0; i < 52; i++) graph[i].color = offwhite;
+            for (int i = 0; i < 52; i++) graph[i].color = colorArray[0];
             redrawPeakDisplay();
             redrawGraphScreen();
             AbcdCalc();
@@ -793,7 +785,7 @@ public class script : MonoBehaviour
             chargeDigit++;
             if (chargeDigit != 4) return;
             StartCoroutine(btrIncrement());
-            StartCoroutine(dialogWrapper.appendText("Charging...", offgreen));
+            StartCoroutine(dialogWrapper.appendText("Charging...", colorArray[3]));
             setState(1);
             charging = true;
             chargeDigit = 0;
@@ -803,7 +795,7 @@ public class script : MonoBehaviour
         {
             chargeDigit = 0;
             generateChargeConfigs();
-            StartCoroutine(dialogWrapper.appendText("Failed. New config: " + sourceChargeConfig, offred));
+            StartCoroutine(dialogWrapper.appendText("Failed. New config: " + sourceChargeConfig, colorArray[1]));
             setState(1);
             aeanChange(2);
             check();
@@ -822,7 +814,7 @@ public class script : MonoBehaviour
             setState(0);
             yield return new WaitForSeconds(.2f);
             setState(1);
-            //StartCoroutine(appendText("Pickup message.", offwhite));
+            //StartCoroutine(appendText("Pickup message.", colorArray[0]));
             yield return new WaitForSeconds(3f);
             updateFace();
             StartCoroutine(cycle());
@@ -835,7 +827,7 @@ public class script : MonoBehaviour
         }
 
         if (distance == 0 && picked)
-            StartCoroutine(dialogWrapper.appendText("Found power source. Config: " + sourceChargeConfig, offyellow));
+            StartCoroutine(dialogWrapper.appendText("Found power source. Config: " + sourceChargeConfig, colorArray[2]));
     }
 
     IEnumerator holding()
@@ -844,7 +836,7 @@ public class script : MonoBehaviour
         yield return new WaitForSeconds(5f);
         if (holdBool)
         {
-            StartCoroutine(dialogWrapper.appendText(picked ? "Put down." : "Picked up.", offgreen, false, FontStyle.Normal, false));
+            StartCoroutine(dialogWrapper.appendText(picked ? "Put down." : "Picked up.", colorArray[3], false, FontStyle.Normal, false));
             picked = !picked;
             holdBool = false;
             StartCoroutine(search());
@@ -918,13 +910,7 @@ public class script : MonoBehaviour
 
     void Start()
     {
-        colorArray = new[]
-        {
-            offwhite, offred, offyellow, offgreen, offblue, offorange, offblack, offbrown, offpurple, offgray, offpink,
-            offcyan, offjade, offazure, offrose
-        };
         distance = Random.Range(150, 301) * 20;
-        //distance = 100;
         AEAN = Random.Range(6000, 8000);
         BTR = Random.Range(10, 1000);
         states[0].SetActive(true);
@@ -1290,6 +1276,7 @@ public class script : MonoBehaviour
 
             case '3':
                 if (state == 5)
+                {
                     if (inventoryIndex == 3)
                     {
                         Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected on 0. {2}", ModuleId,
@@ -1298,6 +1285,7 @@ public class script : MonoBehaviour
                         if ((int)bombInfo.GetTime() % 10 == 0 && table[5] != 0) pass(5);
                         else fail(5);
                     }
+                }
                 else if (state == 8 && wireComposerCircuit < 10)
                 {
                     wireComposerCircuit = 2;
@@ -1308,7 +1296,6 @@ public class script : MonoBehaviour
                     chargePress(3);
                 }
                 else if (state == 7) selectInWireComposer(2);
-
                 return;
             case '4':
                 if (Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4))
@@ -1469,7 +1456,7 @@ public class script : MonoBehaviour
                     aeanChange(3);
                     check();
                     updateFace();
-                    StartCoroutine(dialogWrapper.appendText("Dropped.", offred, false, FontStyle.Normal, false));
+                    StartCoroutine(dialogWrapper.appendText("Dropped.", colorArray[1], false, FontStyle.Normal, false));
                     StopCoroutine(holding());
                 }
 
@@ -1484,7 +1471,7 @@ public class script : MonoBehaviour
                 }
                 else
                 {
-                    StartCoroutine(dialogWrapper.appendText(picked ? "Put down." : "Picked up.", offgreen, false, FontStyle.Normal, false));
+                    StartCoroutine(dialogWrapper.appendText(picked ? "Put down." : "Picked up.", colorArray[3], false, FontStyle.Normal, false));
                     picked = !picked;
                     StartCoroutine(search());
                     updateFace();

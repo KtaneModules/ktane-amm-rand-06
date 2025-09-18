@@ -12,38 +12,15 @@ public class dialogWrap : MonoBehaviour
     private const string dialogsJson = "{\"dialogs\":[{\"name\": \"initial\", \"dialog\": [{\"text\": [\"Dialogs are in WIP.\"], \"color\": 4, \"rightAlign\": false, \"style\": 0, \"anim\": false}]}]}";
     public bool dialogBusy;
     private bool appendBusy;
-
-    static Color rgb(int r, int g, int b) {return new Color(r / 255f, g / 255f, b / 255f);}
-
-    private Color[] colorArray;
     
     void Awake()
     {
-        colorArray = new[]
-        {
-            rgb(230, 223, 215),
-            rgb(203, 60, 60),
-            rgb(236, 219, 68),
-            rgb(110, 197, 92),
-            rgb(98, 139, 243),
-            rgb(220, 140, 64),
-            rgb(88, 88, 88),
-            rgb(139, 76, 22),
-            rgb(178, 93, 214),
-            rgb(159, 156, 152),
-            rgb(217, 142, 138),
-            rgb(104, 168, 168),
-            rgb(106, 178, 142),
-            rgb(102, 158, 193),
-            rgb(168, 86, 121)
-        };
-        
         for (int i = 0; i < 20; i++)
         {
             if (lines[i] != null)
             {
                 lines[i].text = "";
-                lines[i].color = colorArray[0];
+                lines[i].color = script.colorArray[0];
                 lines[i].fontStyle = FontStyle.Normal;
             }
         }
@@ -59,7 +36,7 @@ public class dialogWrap : MonoBehaviour
             {
                 yield return appendText(
                     part.text.Length > 0 ? part.text[Random.Range(0, part.text.Length)] : "",
-                    colorArray[part.color],
+                    script.colorArray[part.color],
                     part.rightAlign,
                     (FontStyle)part.style,
                     part.anim
@@ -80,7 +57,7 @@ public class dialogWrap : MonoBehaviour
         }
 
         lines[19].text = "";
-        lines[19].color = colorArray[0];
+        lines[19].color = script.colorArray[0];
         lines[19].fontStyle = FontStyle.Normal;
     }
     
