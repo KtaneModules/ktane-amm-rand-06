@@ -4815,6 +4815,7 @@ GameObject:
   - component: {fileID: 114116743833401204}
   - component: {fileID: 114481166660659550}
   - component: {fileID: 114645239770079762}
+  - component: {fileID: 114202967622030110}
   - component: {fileID: 114002894623278048}
   m_Layer: 0
   m_Name: module
@@ -21824,6 +21825,39 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShaderNames:
   - GUI/KT 3D Text
+--- !u!114 &114202967622030110
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1994720706839786}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b79006dc8391be2418bd9f63e56b0b05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lines:
+  - {fileID: 102659672344667412}
+  - {fileID: 102587968732888060}
+  - {fileID: 102539546762735772}
+  - {fileID: 102258341799730266}
+  - {fileID: 102762743630226470}
+  - {fileID: 102327332188139782}
+  - {fileID: 102766371966807326}
+  - {fileID: 102483462880364950}
+  - {fileID: 102490281437286978}
+  - {fileID: 102242007643462738}
+  - {fileID: 102674863801605118}
+  - {fileID: 102172216971409136}
+  - {fileID: 102294688457020832}
+  - {fileID: 102229550013511458}
+  - {fileID: 102647390104388872}
+  - {fileID: 102025438726597932}
+  - {fileID: 102360023177449448}
+  - {fileID: 102950963378874720}
+  - {fileID: 102300461111065838}
+  - {fileID: 102854369346770786}
+  dialogBusy: 0
 --- !u!114 &114215053165338424
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -21931,6 +21965,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e7f077c4d6932e41a7cf4001b7bbc0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dialogWrapper: {fileID: 114202967622030110}
   Video: {fileID: 328510765484455166}
   solveVideos: []
   Audio: {fileID: 114481166660659550}
@@ -22002,27 +22037,6 @@ MonoBehaviour:
   videoPlayer: {fileID: 1966080950521948}
   Boss: {fileID: 114002894623278048}
   bombInfo: {fileID: 114116743833401204}
-  lines:
-  - {fileID: 102659672344667412}
-  - {fileID: 102587968732888060}
-  - {fileID: 102539546762735772}
-  - {fileID: 102258341799730266}
-  - {fileID: 102762743630226470}
-  - {fileID: 102327332188139782}
-  - {fileID: 102766371966807326}
-  - {fileID: 102483462880364950}
-  - {fileID: 102490281437286978}
-  - {fileID: 102242007643462738}
-  - {fileID: 102674863801605118}
-  - {fileID: 102172216971409136}
-  - {fileID: 102294688457020832}
-  - {fileID: 102229550013511458}
-  - {fileID: 102647390104388872}
-  - {fileID: 102025438726597932}
-  - {fileID: 102360023177449448}
-  - {fileID: 102950963378874720}
-  - {fileID: 102300461111065838}
-  - {fileID: 102854369346770786}
   face: {fileID: 212635505191621362}
   faces:
   - {fileID: 21300000, guid: 6e2d4f99d66ede94797f9c35f630e12e, type: 3}
@@ -22060,7 +22074,6 @@ MonoBehaviour:
   - {fileID: 1091888707073696}
   - {fileID: 1493406810220954}
   - {fileID: 1863711533682244}
-  module: {fileID: 114309025159504398}
   graph:
   - {fileID: 102138122020387486}
   - {fileID: 102339252215641600}

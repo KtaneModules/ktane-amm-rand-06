@@ -3,30 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Newtonsoft.Json;
 using UnityEngine.Video;
 using KeepCoding;
 using Random = UnityEngine.Random;
 
-public class DialogWrapper
-{
-    public DialogEntry[] dialogs;
-}
-
-public class DialogEntry
-{
-    public string name;
-    public DialogPart[] dialog;
-}
-
-public class DialogPart
-{
-    public string[] text;
-    public int color;
-    public bool rightAlign;
-    public int style;
-    public bool anim;
-}
 
 public class script : MonoBehaviour
 {
@@ -34,20 +14,14 @@ public class script : MonoBehaviour
     int ModuleId;
     private bool ModuleSolved;
 
-    //i hope this is a temporary solution cuz idk how to include contents of a json file
-    private string dialogsJson =
-        "{\"dialogs\":[{\"name\": \"initial\", \"dialog\": [{\"text\": [\"Dialogs are in WIP.\"], \"color\": 4, \"rightAlign\": false, \"style\": 0, \"anim\": false}]}]}";
-
+    public dialogWrap dialogWrapper;
+    
     public VideoPlayer Video;
     public VideoClip[] solveVideos;
     private static VideoClip[] externalSolveVideos;
     public KMAudio Audio;
     public AudioClip[] solveAudios = new AudioClip[64];
     public GameObject videoPlayer;
-    //public VideoClip staticClip;
-
-
-    private DialogEntry[] allDialogs;
 
     public KMBossModule Boss;
     private string[] ignoredModules;
@@ -55,11 +29,9 @@ public class script : MonoBehaviour
     private int solvedModules;
 
     public KMBombInfo bombInfo;
-    public TextMesh[] lines = new TextMesh[20];
     public SpriteRenderer face;
     public Sprite[] faces = new Sprite[24];
     public GameObject[] states = new GameObject[10];
-    public KMBombModule module;
     public TextMesh[] graph = new TextMesh[52];
     public TextMesh question;
     public TextMesh answer;
@@ -102,29 +74,27 @@ public class script : MonoBehaviour
 
     private int state = 1;
     private bool selected;
-    private bool appendBusy;
-    private bool dialogBusy;
     private bool done;
 
-    private readonly Color offwhite = rgb(230, 223, 215);
+    private readonly Color offwhite  = rgb(230, 223, 215);
 
-    private readonly Color offred = rgb(203, 60, 60);
+    private readonly Color offred    = rgb(203, 60, 60);
     private readonly Color offyellow = rgb(236, 219, 68);
-    private readonly Color offgreen = rgb(110, 197, 92);
-    private readonly Color offblue = rgb(98, 139, 243);
+    private readonly Color offgreen  = rgb(110, 197, 92);
+    private readonly Color offblue   = rgb(98, 139, 243);
 
     private readonly Color offorange = rgb(220, 140, 64);
-    private readonly Color offblack = rgb(88, 88, 88);
-    private readonly Color offbrown = rgb(139, 76, 22);
+    private readonly Color offblack  = rgb(88, 88, 88);
+    private readonly Color offbrown  = rgb(139, 76, 22);
     private readonly Color offpurple = rgb(178, 93, 214);
-    private readonly Color offgray = rgb(159, 156, 152);
-    private readonly Color offpink = rgb(217, 142, 138);
-    private readonly Color offcyan = rgb(104, 168, 168);
-    private readonly Color offjade = rgb(106, 178, 142);
-    private readonly Color offazure = rgb(102, 158, 193);
-    private readonly Color offrose = rgb(168, 86, 121);
+    private readonly Color offgray   = rgb(159, 156, 152);
+    private readonly Color offpink   = rgb(217, 142, 138);
+    private readonly Color offcyan   = rgb(104, 168, 168);
+    private readonly Color offjade   = rgb(106, 178, 142);
+    private readonly Color offazure  = rgb(102, 158, 193);
+    private readonly Color offrose   = rgb(168, 86, 121);
 
-    private Color[] colorArray;
+    public static Color[] colorArray;
 
     private readonly float[] itemRes = { 1f, 4f, 10f, 25f, 40f, 200f, 100f, 250f, 440f, 720f, 1000f, 5000f };
 
@@ -144,11 +114,7 @@ public class script : MonoBehaviour
 
     private int inventoryIndex;
 
-    private int[] ABCD =
-    {
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
-    };
+    private int[] ABCD = Enumerable.Repeat(-1, 40).ToArray();
 
     private int[] voltages = new int[10];
     private readonly int[] nomVoltages = { 416000, 750000, 1200000, 3000000, 4000000, 500, 800, 1200, 2000, 4500 };
@@ -220,7 +186,7 @@ public class script : MonoBehaviour
             faceID = 18;
             face.sprite = faces[faceID];
             yield return new WaitForSeconds(.5f);
-            StartCoroutine(PlayDialogSequence("initial"));
+            StartCoroutine(dialogWrapper.PlayDialogSequence("initial"));
         }
         else yield return new WaitForSeconds(.5f);
 
@@ -563,74 +529,6 @@ public class script : MonoBehaviour
         }
     }
 
-    void lineFeed()
-    {
-        for (int i = 0; i < 19; i++)
-        {
-            lines[i].text = lines[i + 1].text;
-            lines[i].color = lines[i + 1].color;
-            lines[i].fontStyle = lines[i + 1].fontStyle;
-        }
-
-        lines[19].text = "";
-        lines[19].color = offwhite;
-        lines[19].fontStyle = FontStyle.Normal;
-    }
-
-    void clearScreen()
-    {
-        for (int i = 0; i < 20; i++)
-        {
-            lines[i].text = "";
-            lines[i].color = offwhite;
-            lines[i].fontStyle = 0;
-        }
-    }
-
-    IEnumerator appendText(string text, Color color, bool rightAlign = false, FontStyle style = 0, bool anim = true)
-    {
-        if (!appendBusy)
-        {
-            appendBusy = true;
-            for (int i = 0; i < text.Length; i++)
-            {
-                if ((i % 30) == 0)
-                {
-                    lineFeed();
-                    lines[19].text = rightAlign ? spaces(30) : "";
-                    lines[19].color = color;
-                    lines[19].fontStyle = style;
-                }
-
-                if (anim) yield return new WaitForSeconds(.03f);
-                lines[19].text = (rightAlign ? lines[19].text.Substring(1) : lines[19].text) + text[i].ToString();
-            }
-
-            appendBusy = false;
-        }
-
-        yield return null;
-    }
-
-    IEnumerator PlayDialogSequence(string sequenceName)
-    {
-        dialogBusy = true;
-        DialogEntry dialog0 = allDialogs.FirstOrDefault(e => e.name == sequenceName);
-        if (dialog0 != null)
-            foreach (var part in dialog0.dialog)
-            {
-                yield return appendText(
-                    part.text.Length > 0 ? part.text[Random.Range(0, part.text.Length)] : "",
-                    colorArray[part.color],
-                    part.rightAlign,
-                    (FontStyle)part.style,
-                    part.anim
-                );
-                yield return new WaitForSeconds(0.7f);
-            }
-
-        dialogBusy = false;
-    }
 
     IEnumerator cycle()
     {
@@ -708,7 +606,7 @@ public class script : MonoBehaviour
         selected = false;
         yield return playRandomVideo();
         setState(6);
-        module.HandlePass();
+        GetComponent<KMBombModule>().HandlePass();
         ModuleSolved = true;
         yield return null;
     }
@@ -913,7 +811,7 @@ public class script : MonoBehaviour
             chargeDigit++;
             if (chargeDigit != 4) return;
             StartCoroutine(btrIncrement());
-            StartCoroutine(appendText("Charging...", offgreen));
+            StartCoroutine(dialogWrapper.appendText("Charging...", offgreen));
             setState(1);
             charging = true;
             chargeDigit = 0;
@@ -923,7 +821,7 @@ public class script : MonoBehaviour
         {
             chargeDigit = 0;
             generateChargeConfigs();
-            StartCoroutine(appendText("Failed. New config: " + sourceChargeConfig, offred));
+            StartCoroutine(dialogWrapper.appendText("Failed. New config: " + sourceChargeConfig, offred));
             setState(1);
             aeanChange(2);
             check();
@@ -955,7 +853,7 @@ public class script : MonoBehaviour
         }
 
         if (distance == 0 && picked)
-            StartCoroutine(appendText("Found power source. Config: " + sourceChargeConfig, offyellow));
+            StartCoroutine(dialogWrapper.appendText("Found power source. Config: " + sourceChargeConfig, offyellow));
     }
 
     IEnumerator holding()
@@ -964,7 +862,7 @@ public class script : MonoBehaviour
         yield return new WaitForSeconds(5f);
         if (holdBool)
         {
-            StartCoroutine(appendText(picked ? "Put down." : "Picked up.", offgreen, false, FontStyle.Normal, false));
+            StartCoroutine(dialogWrapper.appendText(picked ? "Put down." : "Picked up.", offgreen, false, FontStyle.Normal, false));
             picked = !picked;
             holdBool = false;
             StartCoroutine(search());
@@ -1043,8 +941,6 @@ public class script : MonoBehaviour
             offwhite, offred, offyellow, offgreen, offblue, offorange, offblack, offbrown, offpurple, offgray, offpink,
             offcyan, offjade, offazure, offrose
         };
-        //allDialogs = JsonConvert.DeserializeObject<DialogWrapper>(File.ReadAllText("Assets\\dialogs.json")).dialogs;
-        allDialogs = JsonConvert.DeserializeObject<DialogWrapper>(dialogsJson).dialogs;
         videoPlayer.SetActive(false);
         distance = Random.Range(150, 301) * 20;
         //distance = 100;
@@ -1069,9 +965,6 @@ public class script : MonoBehaviour
         StartCoroutine(cycle());
         refreshWireComposer();
         generateChargeConfigs();
-        //redrawInventory();
-        clearScreen();
-        //StartCoroutine(appendText("Initial message.", offwhite, false, FontStyle.Bold,false));
 
         if (ignoredModules == null)
             ignoredModules = Boss.GetIgnoredModules("AMM-041-292", new[]
@@ -1134,7 +1027,7 @@ public class script : MonoBehaviour
         if (!ignoredModules.Contains("AMM-041-292"))
             ignoredModules = ignoredModules.ToList().Concat(new List<string> { "AMM-041-292" }).ToArray();
 
-        module.OnActivate += delegate
+        GetComponent<KMBombModule>().OnActivate += delegate
         {
             nonIgnored = bombInfo.GetSolvableModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count;
             for (int i = 0; i < 12; i++)
@@ -1424,7 +1317,6 @@ public class script : MonoBehaviour
                         if ((int)bombInfo.GetTime() % 10 == 0 && table[5] != 0) pass(5);
                         else fail(5);
                     }
-                    else return;
                 else if (state == 8 && wireComposerCircuit < 10)
                 {
                     wireComposerCircuit = 2;
@@ -1596,7 +1488,7 @@ public class script : MonoBehaviour
                     aeanChange(3);
                     check();
                     updateFace();
-                    StartCoroutine(appendText("Dropped.", offred, false, FontStyle.Normal, false));
+                    StartCoroutine(dialogWrapper.appendText("Dropped.", offred, false, FontStyle.Normal, false));
                     StopCoroutine(holding());
                 }
 
@@ -1611,7 +1503,7 @@ public class script : MonoBehaviour
                 }
                 else
                 {
-                    StartCoroutine(appendText(picked ? "Put down." : "Picked up.", offgreen, false, FontStyle.Normal, false));
+                    StartCoroutine(dialogWrapper.appendText(picked ? "Put down." : "Picked up.", offgreen, false, FontStyle.Normal, false));
                     picked = !picked;
                     StartCoroutine(search());
                     updateFace();
@@ -1622,7 +1514,13 @@ public class script : MonoBehaviour
 
     void Update()
     {
-        if (!selected || dialogBusy || ModuleSolved) return;
+        if (dialogWrapper == null)
+        {
+            Debug.LogError("dialogWrapper is null!");
+            return;
+        }
+        
+        if (!selected || dialogWrapper.dialogBusy || ModuleSolved) return;
         if (Input.GetKeyDown(KeyCode.V)) ACTION('V');
         if (Input.GetKeyDown(KeyCode.G)) ACTION('G');
         if (Input.GetKeyDown(KeyCode.I)) ACTION('I');
