@@ -6,7 +6,6 @@ using UnityEngine;
 using Newtonsoft.Json;
 using UnityEngine.Video;
 using KeepCoding;
-
 using Random = UnityEngine.Random;
 
 public class DialogWrapper
@@ -29,10 +28,15 @@ public class DialogPart
     public bool anim;
 }
 
-public class script : MonoBehaviour {
-    
+public class script : MonoBehaviour
+{
+    static int ModuleIdCounter = 1;
+    int ModuleId;
+    private bool ModuleSolved;
+
     //i hope this is a temporary solution cuz idk how to include contents of a json file
-    private string dialogsJson = "{\"dialogs\":[{\"name\": \"initial\", \"dialog\": [{\"text\": [\"Dialogs are in WIP.\"], \"color\": 4, \"rightAlign\": false, \"style\": 0, \"anim\": false}]}]}";
+    private string dialogsJson =
+        "{\"dialogs\":[{\"name\": \"initial\", \"dialog\": [{\"text\": [\"Dialogs are in WIP.\"], \"color\": 4, \"rightAlign\": false, \"style\": 0, \"anim\": false}]}]}";
 
     public VideoPlayer Video;
     public VideoClip[] solveVideos;
@@ -42,8 +46,7 @@ public class script : MonoBehaviour {
     public GameObject videoPlayer;
     //public VideoClip staticClip;
 
-    
-    
+
     private DialogEntry[] allDialogs;
 
     public KMBossModule Boss;
@@ -91,7 +94,11 @@ public class script : MonoBehaviour {
     private bool firstPickup = true;
     public TextMesh lockAEAN;
 
-    private readonly string[] lockSentences = { "Hope you're proud\nof yourself.", "You had one job.", "Restart the mission.", "Was it worth it?", "Task successfully failed.\nCongratulations.", "What did you expect?", "Happy now?"};
+    private readonly string[] lockSentences =
+    {
+        "Hope you're proud\nof yourself.", "You had one job.", "Restart the mission.", "Was it worth it?",
+        "Task successfully failed.\nCongratulations.", "What did you expect?", "Happy now?"
+    };
 
     private int state = 1;
     private bool selected;
@@ -119,11 +126,11 @@ public class script : MonoBehaviour {
 
     private Color[] colorArray;
 
-    private readonly float[] itemRes = {1f, 4f, 10f, 25f, 40f, 200f, 100f, 250f, 440f, 720f, 1000f, 5000f};
+    private readonly float[] itemRes = { 1f, 4f, 10f, 25f, 40f, 200f, 100f, 250f, 440f, 720f, 1000f, 5000f };
 
     private readonly int[] limits = { 1000, 1600, 2300, 2600, 4100, 4900, 5600, 7200, 8200, 9100, 10000 };
     private int[] freqs = new int[10];
-    private int[] table = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    private int[] table = new int[20];
     private int[] graphInts = new int[52];
     private int[] peakFreqs;
     private int[] peakAmps;
@@ -132,16 +139,23 @@ public class script : MonoBehaviour {
     private int peakAmount;
     private int avgAmp;
 
-    private readonly string[] varNames = { "HVO1", "HVO2", "HVO3", "HVO4", "HVO5", "LVO1", "LVO2", "LVO3", "LVO4", "LVO5", "AEAN", "BTR%" };
+    private readonly string[] varNames =
+        { "HVO1", "HVO2", "HVO3", "HVO4", "HVO5", "LVO1", "LVO2", "LVO3", "LVO4", "LVO5", "AEAN", "BTR%" };
+
     private int inventoryIndex;
-    private int[] ABCD = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };
+
+    private int[] ABCD =
+    {
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+    };
 
     private int[] voltages = new int[10];
     private readonly int[] nomVoltages = { 416000, 750000, 1200000, 3000000, 4000000, 500, 800, 1200, 2000, 4500 };
-    private readonly int[] nomResistances = { 52000,60000,100000,50000,250000,200,360,600,200,2250 };
+    private readonly int[] nomResistances = { 52000, 60000, 100000, 50000, 250000, 200, 360, 600, 200, 2250 };
 
 
-    private int AEAN;      // human i remember you're
+    private int AEAN; // human i remember you're
     private int BTR;
     private float dAEAN = 1;
     private int initialStep;
@@ -154,28 +168,36 @@ public class script : MonoBehaviour {
     private bool wireCharge;
     public GameObject wireChargeMenu;
     public GameObject batteryChargeMenu;
-    private readonly string[] itemNames = { "Screwdriver", "Hammer", "Compressed Air", "Oilcan", "Black Wire", "Red Wire", "Yellow Wire", "Blue Wire", "White Wire", "Green Wire", "NKN-Resistor", "RGN-Resistor", "YYN-Resistor", "PRN-Resistor", "NKR-Resistor", "GKR-Resistor", "Car Battery" };
+
+    private readonly string[] itemNames =
+    {
+        "Screwdriver", "Hammer", "Compressed Air", "Oilcan", "Black Wire", "Red Wire", "Yellow Wire", "Blue Wire",
+        "White Wire", "Green Wire", "NKN-Resistor", "RGN-Resistor", "YYN-Resistor", "PRN-Resistor", "NKR-Resistor",
+        "GKR-Resistor", "Car Battery"
+    };
+
     public TextMesh inventory;
     private string sourceChargeConfig = "";
 
 
-    static Color rgb(int r, int g, int b) { return new Color(r / 255f, g / 255f, b / 255f); }
-
-    string divideBy1000(int num) {
-        if ((num % 1000) < 10) return (num / 1000).ToString() + ".00" + (num % 1000).ToString();
-        else if((num % 1000) < 100) return (num / 1000).ToString() + ".0" + (num % 1000).ToString();
-        else return (num / 1000).ToString() + "." + (num % 1000).ToString();
+    static Color rgb(int r, int g, int b)
+    {
+        return new Color(r / 255f, g / 255f, b / 255f);
     }
+
+    string divideBy1000(int num)
+    {
+        return num / 1000 + (num % 1000 < 10 ? ".00" : num % 1000 < 100 ? ".0" : ".") + num % 1000;
+    }
+
     string divideBy100(int num)
     {
-        if ((num % 100) < 10) return (num / 100).ToString() + ".0" + (num % 100).ToString();
-        else return (num / 100).ToString() + "." + (num % 100).ToString();
+        return num / 100 + (num % 100 < 10 ? ".0" : ".") + num % 100;
     }
+
     string spaces(int amount)
     {
-        string ans = "";
-        for (int i = 0; i < amount; i++) ans += " ";
-        return ans;
+        return Enumerable.Repeat(" ", amount).Join("");
     }
 
     IEnumerator onDef()
@@ -186,8 +208,10 @@ public class script : MonoBehaviour {
             states[state].SetActive(false);
             states[0].SetActive(true);
         }
+
         yield return null;
     }
+
     IEnumerator onFoc()
     {
         if (!start)
@@ -197,7 +221,8 @@ public class script : MonoBehaviour {
             face.sprite = faces[faceID];
             yield return new WaitForSeconds(.5f);
             StartCoroutine(PlayDialogSequence("initial"));
-        } else yield return new WaitForSeconds(.5f);
+        }
+        else yield return new WaitForSeconds(.5f);
 
         updateFace();
         states[0].SetActive(false);
@@ -207,31 +232,31 @@ public class script : MonoBehaviour {
 
     void deleteItem(int index)
     {
-        int[] peakFreqs1 = new int[peakFreqs.Length-1];
-        int[] peakAmps1 = new int[peakFreqs.Length-1];
-        int[] peakIds1 = new int[peakFreqs.Length-1];
-        for (int i=0; i< peakFreqs.Length-1; i++)
+        int[] peakFreqs1 = new int[peakFreqs.Length - 1];
+        int[] peakAmps1 = new int[peakFreqs.Length - 1];
+        int[] peakIds1 = new int[peakFreqs.Length - 1];
+        for (int i = 0; i < peakFreqs.Length - 1; i++)
         {
             peakFreqs1[i] = peakFreqs[i + (i < index ? 0 : 1)];
             peakAmps1[i] = peakAmps[i + (i < index ? 0 : 1)];
             peakIds1[i] = peakIds[i + (i < index ? 0 : 1)];
         }
+
         peakFreqs = peakFreqs1;
         peakAmps = peakAmps1;
         peakIds = peakIds1;
         peakAmount--;
         page = 0;
     }
+
     void redrawPeakDisplay()
     {
         if (peakAmount > 0)
         {
-            peakShow.text = "Local peak " + page + ":\n\n"+ divideBy1000(peakAmps[page]) +" dB @ "+ divideBy1000(peakFreqs[page]) + " kHz";
+            peakShow.text = "Local peak " + page + ":\n\n" + divideBy1000(peakAmps[page]) + " dB @ " +
+                            divideBy1000(peakFreqs[page]) + " kHz";
             peakList.text = (page + 1).ToString() + "/" + peakAmount;
-            for (int i = 0; i< peakAmount; i++)
-            {
-                graph[peakIds[i]].color = i == page ? offyellow : offwhite;
-            }
+            for (var i = 0; i < peakAmount; i++) graph[peakIds[i]].color = i == page ? offyellow : offwhite;
         }
         else
         {
@@ -239,112 +264,133 @@ public class script : MonoBehaviour {
             peakList.text = "";
         }
     }
+
     void redrawIndex()
     {
         invArrow.text = "";
         for (int i = 0; i < inventoryIndex; i++) invArrow.text += "\n";
         invArrow.text += ">";
     }
+
     void redrawVariables()
     {
         if (AEAN < 0) AEAN = 0;
         string ans = "";
-        for (int i=0; i<10; i++)
+        for (int i = 0; i < 10; i++)
         {
-            ans += varNames[i] + ":" + spaces(17 - divideBy100(voltages[i]).Length) + divideBy100(voltages[i])+"\n";
+            ans += varNames[i] + ":" + spaces(17 - divideBy100(voltages[i]).Length) + divideBy100(voltages[i]) + "\n";
         }
+
         ans += "\n\n";
         ans += varNames[10] + ":" + spaces(17 - divideBy100(AEAN).Length) + divideBy100(AEAN) + "\n";
         ans += varNames[11] + ":" + spaces(17 - divideBy100(BTR).Length) + divideBy100(BTR) + "\n";
         varList.text = ans;
     }
+
     void setState(int newState)
     {
         states[state].SetActive(false);
         state = newState;
         states[state].SetActive(true);
     }
+
     void generate()
     {
+        List<int> numbers = Enumerable.Range(0, 19).ToList().Shuffle();
         int amount = Random.Range(7, 13);
         int nonCrit = Random.Range(2, 6);
-        for (int i=0; i<amount; i++)
+        for (int i = 0; i < amount; i++)
         {
-            int n = Random.Range(0, 20);
-            while(table[n]!=0) n = Random.Range(0, 20);
-            table[n] = 1;
-            if (n < 10) peakAmount++;
+            table[numbers[i]] = 1;
+            if (numbers[i] < 10) peakAmount++;
         }
+
         for (int i = 0; i < nonCrit; i++)
         {
-            int n = Random.Range(0, 20);
-            while (table[n] != 0) n = Random.Range(0, 20);
-            table[n] = 2;
-            if (n < 10) peakAmount++;
+            table[numbers[i + amount]] = 2;
+            if (numbers[i + amount] < 10) peakAmount++;
         }
-        for (int i=0; i<10; i++)
+
+        for (int i = 0; i < 10; i++)
         {
             freqs[i] = Random.Range(limits[i] + 1, limits[i + 1]);
         }
 
-        initialStep = 20000 / (4 * amount -5) + 1;
+        initialStep = 20000 / (4 * amount - 5) + 1;
         peakFreqs = new int[peakAmount];
-        peakAmps  = new int[peakAmount];
-        peakIds   = new int[peakAmount];
+        peakAmps = new int[peakAmount];
+        peakIds = new int[peakAmount];
         int sum = 0;
-        for (int ii = 0; ii < peakAmount; ii++)
+        int j = 0;
+        for (int ii = 0; ii < 10; ii++)
         {
+            if (table[ii] == 0) continue;
             int amp = table[ii] == 1 ? Random.Range(5000, 7500) : Random.Range(3500, 5000);
-            peakIds[ii] = (freqs[ii] - 1000) * 52 / 9000;
-            if (ii>0 && peakIds[ii] == peakIds[ii-1]) peakIds[ii]++;
-            graphInts[peakIds[ii]] = amp;
-            peakAmps[ii] = amp;
-            peakFreqs[ii] = freqs[ii];
-            
+            peakIds[j] = (freqs[ii] - 1000) * 52 / 9000;
+            if (j > 0 && peakIds[j] == peakIds[j - 1]) peakIds[j]++;
+            graphInts[peakIds[j]] = amp;
+            peakAmps[j] = amp;
+            peakFreqs[j] = freqs[ii];
+            j++;
         }
 
-        for (int i=0; i<52; i++)
+        for (int i = 0; i < 52; i++)
         {
             if (graphInts[i] == 0) graphInts[i] = Random.Range(2000, 2800);
             sum += graphInts[i];
         }
+
         avgAmp = sum / 52;
         redrawGraphScreen();
 
-        for (int i=0; i<10; i++)
+        for (int i = 0; i < 10; i++)
         {
-            if (table[10 + i] == 0) voltages[i] = Random.Range(
+            if (table[10 + i] == 0)
+                voltages[i] = Random.Range(
                     (int)((i < 5 ? 0.97f : 0.9f) * nomVoltages[i] + 1),
                     (int)((i < 5 ? 1.03f : 1.1f) * nomVoltages[i])
-                    );
+                );
             else if (table[10 + i] == 1) voltages[i] = i < 5 ? Random.Range(0, 19) : 0;
-            else { 
+            else
+            {
                 voltages[i] = Random.Range(nomVoltages[i] / 2, nomVoltages[i] * 2);
-                while ((float)voltages[i]/nomVoltages[i]>= (i < 5 ? 0.97f : 0.9f) && (float)voltages[i] / nomVoltages[i] <= (i < 5 ? 1.03f : 1.1f)) voltages[i] = Random.Range(nomVoltages[i] / 2, nomVoltages[i] * 2);
+                while ((float)voltages[i] / nomVoltages[i] >= (i < 5 ? 0.97f : 0.9f) &&
+                       (float)voltages[i] / nomVoltages[i] <= (i < 5 ? 1.03f : 1.1f))
+                    voltages[i] = Random.Range(nomVoltages[i] / 2, nomVoltages[i] * 2);
             }
+
+            Debug.LogFormat("[AMM-041-292 #{0}] Generated voltage of {1} is {2} V.", ModuleId, varNames[i],
+                divideBy100(voltages[i]));
             // good luck with that one, you have 10^15 combinations in wire composer
         }
+
         redrawVariables();
     }
+
     void refreshQuestion()
     {
-        question.text = wireComposerCircuit < 10 ? "Which circuit needs\nto be adjusted?" : "How do you want\nto connect it?\n\n1 - Serial\n0 - Parallel";
+        question.text = wireComposerCircuit < 10
+            ? "Which circuit needs\nto be adjusted?"
+            : "How do you want\nto connect it?\n\n1 - Serial\n0 - Parallel";
         answer.text = wireComposerCircuit > -1 && wireComposerCircuit < 10 ? varNames[wireComposerCircuit] : "";
     }
+
     void refreshWireComposer()
     {
         for (int i = 0; i < 15; i++) wireComposerConfig[i] = -1;
         wireComposerIndex = 0;
-        for (int i=0; i<12; i++) itemBuffer[i] = itemAmount[i];
+        for (int i = 0; i < 12; i++) itemBuffer[i] = itemAmount[i];
         redrawWireComposerScreen();
     }
+
     void redrawWireComposerScreen()
     {
-        for (int i=0;i<12;i++)
+        for (int i = 0; i < 12; i++)
         {
             amounts[i].text = "x" + itemBuffer[i];
         }
-        for(int i=0; i<15; i++)
+
+        for (int i = 0; i < 15; i++)
         {
             if (wireComposerConfig[i] > -1 && wireComposerConfig[i] < 6) brackets[i].text = "-- --";
             else if (wireComposerConfig[i] > 5) brackets[i].text = "#   #";
@@ -352,146 +398,150 @@ public class script : MonoBehaviour {
             switch (wireComposerConfig[i])
             {
                 case -1:
-                    {
+                {
+                    letters[3 * i + 0].text = "";
+                    letters[3 * i + 1].text = "";
+                    letters[3 * i + 2].text = "";
 
-                        letters[3 * i + 0].text = "";
-                        letters[3 * i + 1].text = "";
-                        letters[3 * i + 2].text = "";
-
-                        break;
-                    }
+                    break;
+                }
                 case 0:
-                    {
-                        
-                        letters[3 * i + 0].text = "";
-                        letters[3 * i + 1].text = "K";
-                        letters[3 * i + 2].text = "";
-                        letters[3 * i + 1].color = offblack;
-                        
-                        break;
-                    }
+                {
+                    letters[3 * i + 0].text = "";
+                    letters[3 * i + 1].text = "K";
+                    letters[3 * i + 2].text = "";
+                    letters[3 * i + 1].color = offblack;
+
+                    break;
+                }
                 case 1:
-                    {
-                        letters[3 * i + 0].text = "";
-                        letters[3 * i + 1].text = "R";
-                        letters[3 * i + 2].text = "";
-                        letters[3 * i + 1].color = offred;
-                        break;
-                    }
+                {
+                    letters[3 * i + 0].text = "";
+                    letters[3 * i + 1].text = "R";
+                    letters[3 * i + 2].text = "";
+                    letters[3 * i + 1].color = offred;
+                    break;
+                }
                 case 2:
-                    {
-                        letters[3 * i + 0].text = "";
-                        letters[3 * i + 1].text = "Y";
-                        letters[3 * i + 2].text = "";
-                        letters[3 * i + 1].color = offyellow;
-                        break;
-                    }
+                {
+                    letters[3 * i + 0].text = "";
+                    letters[3 * i + 1].text = "Y";
+                    letters[3 * i + 2].text = "";
+                    letters[3 * i + 1].color = offyellow;
+                    break;
+                }
                 case 3:
-                    {
-                        letters[3 * i + 0].text = "";
-                        letters[3 * i + 1].text = "B";
-                        letters[3 * i + 2].text = "";
-                        letters[3 * i + 1].color = offblue;
-                        break;
-                    }
+                {
+                    letters[3 * i + 0].text = "";
+                    letters[3 * i + 1].text = "B";
+                    letters[3 * i + 2].text = "";
+                    letters[3 * i + 1].color = offblue;
+                    break;
+                }
                 case 4:
-                    {
-                        letters[3 * i + 0].text = "";
-                        letters[3 * i + 1].text = "W";
-                        letters[3 * i + 2].text = "";
-                        letters[3 * i + 1].color = offwhite;
-                        break;
-                    }
+                {
+                    letters[3 * i + 0].text = "";
+                    letters[3 * i + 1].text = "W";
+                    letters[3 * i + 2].text = "";
+                    letters[3 * i + 1].color = offwhite;
+                    break;
+                }
                 case 5:
-                    {
-                        letters[3 * i + 0].text = "";
-                        letters[3 * i + 1].text = "G";
-                        letters[3 * i + 2].text = "";
-                        letters[3 * i + 1].color = offgreen;
-                        break;
-                    }
+                {
+                    letters[3 * i + 0].text = "";
+                    letters[3 * i + 1].text = "G";
+                    letters[3 * i + 2].text = "";
+                    letters[3 * i + 1].color = offgreen;
+                    break;
+                }
                 case 6:
-                    {
-                        letters[3 * i + 0].text = "N";
-                        letters[3 * i + 1].text = "K";
-                        letters[3 * i + 2].text = "N";
-                        letters[3 * i + 0].color = offbrown;
-                        letters[3 * i + 1].color = offblack;
-                        letters[3 * i + 2].color = offbrown;
-                        break;
-                    }
+                {
+                    letters[3 * i + 0].text = "N";
+                    letters[3 * i + 1].text = "K";
+                    letters[3 * i + 2].text = "N";
+                    letters[3 * i + 0].color = offbrown;
+                    letters[3 * i + 1].color = offblack;
+                    letters[3 * i + 2].color = offbrown;
+                    break;
+                }
                 case 7:
-                    {
-                        letters[3 * i + 0].text = "R";
-                        letters[3 * i + 1].text = "G";
-                        letters[3 * i + 2].text = "N";
-                        letters[3 * i + 0].color = offred;
-                        letters[3 * i + 1].color = offgreen;
-                        letters[3 * i + 2].color = offbrown;
-                        break;
-                    }
+                {
+                    letters[3 * i + 0].text = "R";
+                    letters[3 * i + 1].text = "G";
+                    letters[3 * i + 2].text = "N";
+                    letters[3 * i + 0].color = offred;
+                    letters[3 * i + 1].color = offgreen;
+                    letters[3 * i + 2].color = offbrown;
+                    break;
+                }
                 case 8:
-                    {
-                        letters[3 * i + 0].text = "Y";
-                        letters[3 * i + 1].text = "Y";
-                        letters[3 * i + 2].text = "N";
-                        letters[3 * i + 0].color = offyellow;
-                        letters[3 * i + 1].color = offyellow;
-                        letters[3 * i + 2].color = offbrown;
-                        break;
-                    }
+                {
+                    letters[3 * i + 0].text = "Y";
+                    letters[3 * i + 1].text = "Y";
+                    letters[3 * i + 2].text = "N";
+                    letters[3 * i + 0].color = offyellow;
+                    letters[3 * i + 1].color = offyellow;
+                    letters[3 * i + 2].color = offbrown;
+                    break;
+                }
                 case 9:
-                    {
-                        letters[3 * i + 0].text = "P";
-                        letters[3 * i + 1].text = "R";
-                        letters[3 * i + 2].text = "N";
-                        letters[3 * i + 0].color = offpurple;
-                        letters[3 * i + 1].color = offred;
-                        letters[3 * i + 2].color = offbrown;
-                        break;
-                    }
+                {
+                    letters[3 * i + 0].text = "P";
+                    letters[3 * i + 1].text = "R";
+                    letters[3 * i + 2].text = "N";
+                    letters[3 * i + 0].color = offpurple;
+                    letters[3 * i + 1].color = offred;
+                    letters[3 * i + 2].color = offbrown;
+                    break;
+                }
                 case 10:
-                    {
-                        letters[3 * i + 0].text = "N";
-                        letters[3 * i + 1].text = "K";
-                        letters[3 * i + 2].text = "R";
-                        letters[3 * i + 0].color = offbrown;
-                        letters[3 * i + 1].color = offblack;
-                        letters[3 * i + 2].color = offred;
-                        break;
-                    }
+                {
+                    letters[3 * i + 0].text = "N";
+                    letters[3 * i + 1].text = "K";
+                    letters[3 * i + 2].text = "R";
+                    letters[3 * i + 0].color = offbrown;
+                    letters[3 * i + 1].color = offblack;
+                    letters[3 * i + 2].color = offred;
+                    break;
+                }
                 case 11:
-                    {
-                        letters[3 * i + 0].text = "G";
-                        letters[3 * i + 1].text = "K";
-                        letters[3 * i + 2].text = "R";
-                        letters[3 * i + 0].color = offgreen;
-                        letters[3 * i + 1].color = offblack;
-                        letters[3 * i + 2].color = offred;
-                        break;
-                    }
+                {
+                    letters[3 * i + 0].text = "G";
+                    letters[3 * i + 1].text = "K";
+                    letters[3 * i + 2].text = "R";
+                    letters[3 * i + 0].color = offgreen;
+                    letters[3 * i + 1].color = offblack;
+                    letters[3 * i + 2].color = offred;
+                    break;
+                }
             }
+
             brackets[i].color = (i == wireComposerIndex) ? offyellow : offwhite;
         }
     }
+
     void selectInWireComposer(int item)
     {
         if (item == -1)
         {
             if (wireComposerConfig[wireComposerIndex] != -1) itemBuffer[wireComposerConfig[wireComposerIndex]]++;
             wireComposerConfig[wireComposerIndex] = item;
-        } else
-        if (wireComposerConfig[wireComposerIndex] == item) {
+        }
+        else if (wireComposerConfig[wireComposerIndex] == item)
+        {
             itemBuffer[item]++;
             wireComposerConfig[wireComposerIndex] = -1;
         }
-        else if (itemBuffer[item] != 0) {
+        else if (itemBuffer[item] != 0)
+        {
             itemBuffer[item]--;
-            if (wireComposerConfig[wireComposerIndex]!=-1) itemBuffer[wireComposerConfig[wireComposerIndex]]++;
+            if (wireComposerConfig[wireComposerIndex] != -1) itemBuffer[wireComposerConfig[wireComposerIndex]]++;
             wireComposerConfig[wireComposerIndex] = item;
         }
+
         redrawWireComposerScreen();
     }
+
     void redrawGraphScreen()
     {
         for (int i = 0; i < 52; i++) graph[i].transform.localScale = new Vector3(1f, graphInts[i] / 7500f, 1f);
@@ -512,18 +562,21 @@ public class script : MonoBehaviour {
             avgJudg.color = offred;
         }
     }
+
     void lineFeed()
     {
-        for (int i=0; i<19; i++)
+        for (int i = 0; i < 19; i++)
         {
             lines[i].text = lines[i + 1].text;
             lines[i].color = lines[i + 1].color;
             lines[i].fontStyle = lines[i + 1].fontStyle;
         }
+
         lines[19].text = "";
         lines[19].color = offwhite;
         lines[19].fontStyle = FontStyle.Normal;
     }
+
     void clearScreen()
     {
         for (int i = 0; i < 20; i++)
@@ -533,7 +586,8 @@ public class script : MonoBehaviour {
             lines[i].fontStyle = 0;
         }
     }
-    IEnumerator appendText(string text, Color color, bool rightAlign=false, FontStyle style = 0, bool anim =true)
+
+    IEnumerator appendText(string text, Color color, bool rightAlign = false, FontStyle style = 0, bool anim = true)
     {
         if (!appendBusy)
         {
@@ -547,11 +601,14 @@ public class script : MonoBehaviour {
                     lines[19].color = color;
                     lines[19].fontStyle = style;
                 }
+
                 if (anim) yield return new WaitForSeconds(.03f);
                 lines[19].text = (rightAlign ? lines[19].text.Substring(1) : lines[19].text) + text[i].ToString();
             }
+
             appendBusy = false;
         }
+
         yield return null;
     }
 
@@ -559,7 +616,7 @@ public class script : MonoBehaviour {
     {
         dialogBusy = true;
         DialogEntry dialog0 = allDialogs.FirstOrDefault(e => e.name == sequenceName);
-        if (dialog0!=null)
+        if (dialog0 != null)
             foreach (var part in dialog0.dialog)
             {
                 yield return appendText(
@@ -571,6 +628,7 @@ public class script : MonoBehaviour {
                 );
                 yield return new WaitForSeconds(0.7f);
             }
+
         dialogBusy = false;
     }
 
@@ -583,45 +641,51 @@ public class script : MonoBehaviour {
             face.sprite = faces[faceID];
         }
     }
+
     void AbcdCalc()
     {
         int j = 0;
-        for (int i=0; i<10; i++)
+        for (int i = 0; i < 10; i++)
         {
             if (table[i] != 0)
             {
-                ABCD[i] = peakFreqs[j] % 100 /10 ;
+                ABCD[i] = peakFreqs[j] % 100 / 10;
                 ABCD[10 + i] = peakFreqs[j] % 10;
                 ABCD[20 + i] = (peakAmps[j] - avgAmp) % 100 / 10;
                 ABCD[30 + i] = (peakAmps[j] - avgAmp) % 10;
+                Debug.LogFormat(
+                    "[AMM-041-292 #{0}] Component {1}: A={2}, B={3}, C={4}, D={5}. Peak frequency: {6}, Delta-amplitude: {7}.",
+                    ModuleId, i, ABCD[i], ABCD[10 + i], ABCD[20 + i], ABCD[30 + i], peakFreqs[j], peakAmps[j] - avgAmp);
                 j++;
             }
             else
             {
                 ABCD[i] = -1;
-                ABCD[10+i] = -1;
-                ABCD[20+i] = -1;
-                ABCD[30+i] = -1;
+                ABCD[10 + i] = -1;
+                ABCD[20 + i] = -1;
+                ABCD[30 + i] = -1;
+                Debug.LogFormat("[AMM-041-292 #{0}] Component {1}: no need to fix.", ModuleId, i);
             }
         }
     }
+
     void LOCK()
     {
+        Debug.LogFormat("[AMM-041-292 #{0}] AEAN is bigger than 120.0. Guess what.", ModuleId);
         done = true;
         GetComponent<KMSelectable>().OnFocus = null;
         GetComponent<KMSelectable>().OnDefocus = null;
         selected = false;
-        lockAEAN.text = "AMM ran away.\n\n" + lockSentences[Random.Range(0, lockSentences.Length)] + "\n\nAEAN: " + divideBy100(AEAN);
+        lockAEAN.text = "AMM ran away.\n\n" + lockSentences[Random.Range(0, lockSentences.Length)] + "\n\nAEAN: " +
+                        divideBy100(AEAN);
         setState(4);
     }
-    
+
     IEnumerator playRandomVideo()
     {
         int ind = Random.Range(0, 64);
-
         if (!Application.isEditor && externalSolveVideos == null)
             externalSolveVideos = PathManager.GetAssets<VideoClip>("ammvideo");
-
         Video.clip = (!Application.isEditor ? externalSolveVideos : solveVideos)[ind];
         Video.Play();
         videoPlayer.SetActive(true);
@@ -629,10 +693,11 @@ public class script : MonoBehaviour {
         yield return new WaitForSeconds(solveAudios[ind].length);
         videoPlayer.SetActive(false);
     }
-    
+
     IEnumerator SOLVE()
     {
         done = true;
+        Debug.LogFormat("[AMM-041-292 #{0}] Yo, you did it! Good job!", ModuleId);
         GetComponent<KMSelectable>().OnFocus = null;
         GetComponent<KMSelectable>().OnDefocus = null;
         StopCoroutine(onFoc());
@@ -644,16 +709,25 @@ public class script : MonoBehaviour {
         yield return playRandomVideo();
         setState(6);
         module.HandlePass();
-
+        ModuleSolved = true;
         yield return null;
     }
+
     void check()
     {
-        if (AEAN >= 12000) { LOCK(); return; }
+        if (AEAN >= 12000)
+        {
+            LOCK();
+            return;
+        }
+
         bool judge = true;
-        for (int i=0; i<20; i++) if (table[i] == 1) return; else if (table[i] == 1) judge = false;
+        for (int i = 0; i < 20; i++)
+            if (table[i] == 1) return;
+            else if (table[i] == 1) judge = false;
         if ((AEAN < 2000 || judge) && (BTR > 499 || charging)) StartCoroutine(SOLVE());
     }
+
     void updateFace()
     {
         if (picked && AEAN < 9000) faceID = 22;
@@ -664,14 +738,16 @@ public class script : MonoBehaviour {
         else if (AEAN < 9000) faceID = 8;
         else if (AEAN < 10500) faceID = 10;
         else if (AEAN < 12000) faceID = 12;
-
     }
+
     void pass(int index)
     {
         if (index < 10)
         {
             int ind = 0;
-            for (int i = 0; i < index; i++) if (table[i] != 0) ind++;
+            for (int i = 0; i < index; i++)
+                if (table[i] != 0)
+                    ind++;
             table[index] = 0;
             int old = graphInts[peakIds[ind]];
             graphInts[peakIds[ind]] = Random.Range(2000, 2800);
@@ -687,78 +763,94 @@ public class script : MonoBehaviour {
             table[index] = 0;
             for (int i = 0; i < 10; i++) itemAmount[i] = itemBuffer[i];
             redrawInventory();
+            refreshWireComposer();
         }
+
         aeanChange(0);
         setState(1);
         updateFace();
         check();
     }
+
     void fail(int index)
     {
+        if (index > 9) refreshWireComposer();
         aeanChange(1);
         setState(1);
         updateFace();
         check();
     }
+
     float resistance()
     {
-        float ans=0;
-        for (int j=0; j<3; j++)
+        float ans = 0;
+        for (int j = 0; j < 3; j++)
         {
-            float midAns=0;
-            for (int i=0; i<5; i++)
-            {
-                if (wireComposerConfig[j * 5 + i] != -1) midAns += 1 / itemRes[wireComposerConfig[j * 5 + i]];
-            }
+            float midAns = 0;
+            for (int i = 0; i < 5; i++)
+                if (wireComposerConfig[j * 5 + i] != -1)
+                    midAns += 1 / itemRes[wireComposerConfig[j * 5 + i]];
             if (midAns != 0) ans += 1 / midAns;
         }
+
         return ans;
     }
+
     void checkRes(bool parallel)
     {
         int index = wireComposerCircuit % 10;
-        int res = table[index+10]==2?(int)(nomResistances[index] * ((float)voltages[index] / nomVoltages[index])):0;
+        int res = table[index + 10] == 2
+            ? (int)(nomResistances[index] * ((float)voltages[index] / nomVoltages[index]))
+            : 0;
         int newres = parallel ? (int)(100 / (1 / resistance() + 1 / (res / 100f))) : res + (int)(resistance() * 100);
         int newVolt = (int)(nomVoltages[index] * ((float)newres / nomResistances[index]));
-        Debug.Log("res = " + resistance() + ", newres = " + divideBy100(newres) + ", newvolt = " + divideBy100(newVolt));
-        if ((float)newVolt / nomVoltages[index] >= (index < 5 ? 0.97f : 0.9f) && (float)newVolt / nomVoltages[index] <= (index < 5 ? 1.03f : 1.1f))
+        Debug.LogFormat(
+            "[AMM-041-292 #{0}] Resistance on Wire Composer: {1}.\nCombined resistance: {2}.\nNew voltage: {3}",
+            ModuleId, resistance(), divideBy100(newres), divideBy100(newVolt));
+        if ((float)newVolt / nomVoltages[index] >= (index < 5 ? 0.97f : 0.9f) &&
+            (float)newVolt / nomVoltages[index] <= (index < 5 ? 1.03f : 1.1f))
         {
+            Debug.LogFormat("[AMM-041-292 #{0}] Yep, that's it.", ModuleId);
             voltages[index] = newVolt;
             pass(10 + index);
         }
         else
         {
+            Debug.LogFormat("[AMM-041-292 #{0}] No, that's wrong.", ModuleId);
             fail(10 + index);
         }
     }
+
     void generateChargeConfigs()
     {
         string colorString = "WRYGBOKNPAICJZS";
 
-        int[] wireNumbers = new List<int> { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }.Shuffle().ToArray();   
-        int[] wireConfig = new List<int> { 0, 1, 2, 3, 4, 5}.Shuffle().ToArray();                 
-        int[] wireIndexes = new List<int> { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }.Shuffle().ToArray();   
+        int[] wireNumbers = new List<int> { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }.Shuffle().ToArray();
+        int[] wireConfig = new List<int> { 0, 1, 2, 3, 4, 5 }.Shuffle().ToArray();
+        int[] wireIndexes = new List<int> { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }.Shuffle().ToArray();
         int[] batteryNumbers = new List<int> { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }.Shuffle().ToArray();
-        int[] batteryWireIndexes = new List<int> { 0, 1, 2, 3 }.Shuffle().ToArray();              
-        int[] wiresLocal = new List<int> { 0, 1, 2, 3 }.Shuffle().ToArray();                      
+        int[] batteryWireIndexes = new List<int> { 0, 1, 2, 3 }.Shuffle().ToArray();
+        int[] wiresLocal = new List<int> { 0, 1, 2, 3 }.Shuffle().ToArray();
         bool[] batteryShuffler = new List<bool> { true, true, true, false, false, false, false }.Shuffle().ToArray();
         sourceChargeConfig = "";
-        for (int i=0; i<6; i++)
+        for (int i = 0; i < 6; i++)
         {
             wireConfigs[i].text = colorString[wireIndexes[i] + 5].ToString() + "          " + wireNumbers[i];
             wires[i].color = colorArray[wireIndexes[i] + 5];
         }
+
         int switcher = 0;
         string batteryConfigAns = "";
-        for(int i=0; i<4; i++)
+        for (int i = 0; i < 4; i++)
         {
             ammWires[i].color = colorArray[1 + wiresLocal[i]];
         }
-        for (int i=0; i<7; i++)
+
+        for (int i = 0; i < 7; i++)
         {
             if (batteryShuffler[i])
             {
-                batteryConfigAns += colorString[batteryWireIndexes[switcher / 16]+1].ToString();
+                batteryConfigAns += colorString[batteryWireIndexes[switcher / 16] + 1].ToString();
                 switcher += 16;
             }
             else
@@ -767,23 +859,28 @@ public class script : MonoBehaviour {
                 switcher += 1;
             }
         }
-        colorblind.text = colorString[1 + wiresLocal[0]].ToString() + colorString[1 + wiresLocal[1]].ToString() + "         " + colorString[1 + wiresLocal[2]].ToString() + colorString[1 + wiresLocal[3]].ToString();
+
+        colorblind.text = colorString[1 + wiresLocal[0]].ToString() + colorString[1 + wiresLocal[1]].ToString() +
+                          "         " + colorString[1 + wiresLocal[2]].ToString() +
+                          colorString[1 + wiresLocal[3]].ToString();
         batteryConfig.text = batteryConfigAns;
 
         for (int i = 0; i < 4; i++)
         {
             wireCode[i] = wireNumbers[wireConfig[wiresLocal[i]]];
-            batteryCode[i] = batteryNumbers[Array.IndexOf(batteryWireIndexes,wiresLocal[i])];
+            batteryCode[i] = batteryNumbers[Array.IndexOf(batteryWireIndexes, wiresLocal[i])];
             sourceChargeConfig += colorString[wireIndexes[wireConfig[i]] + 5].ToString();
         }
-        //Debug.Log(wireCode[0].ToString() + wireCode[1].ToString() + wireCode[2].ToString() + wireCode[3].ToString());
-        //Debug.Log(batteryCode[0].ToString() + batteryCode[1].ToString() + batteryCode[2].ToString() + batteryCode[3].ToString());
     }
 
-    int min(int a, int b) { return a > b ? b : a; }
+    int min(int a, int b)
+    {
+        return a > b ? b : a;
+    }
+
     IEnumerator btrIncrement()
     {
-        int batteryCapacity = wireCharge ? 10000 - BTR : min(10000 - BTR,Random.Range(7500, 8500));
+        int batteryCapacity = wireCharge ? 10000 - BTR : min(10000 - BTR, Random.Range(7500, 8500));
         while (batteryCapacity > 0)
         {
             yield return new WaitForSeconds(1.44f);
@@ -796,17 +893,22 @@ public class script : MonoBehaviour {
     void redrawInventory()
     {
         string ans = "";
-        for (int i=0; i<itemNames.Length; i++)
+        for (int i = 0; i < itemNames.Length; i++)
         {
             ans += itemNames[i];
-            if (i > 3) ans += (spaces(25-itemNames[i].Length- (i == itemNames.Length - 1 ? batteryAmount : itemAmount[i - 4]).ToString().Length - 1) + "x" + (i == itemNames.Length - 1 ? batteryAmount : itemAmount[i - 4]).ToString());
+            if (i > 3)
+                ans += (spaces(25 - itemNames[i].Length -
+                               (i == itemNames.Length - 1 ? batteryAmount : itemAmount[i - 4]).ToString().Length - 1) +
+                        "x" + (i == itemNames.Length - 1 ? batteryAmount : itemAmount[i - 4]).ToString());
             ans += "\n";
         }
+
         inventory.text = ans;
     }
+
     void chargePress(int digit)
     {
-        if (digit == (wireCharge?wireCode[chargeDigit]:batteryCode[chargeDigit]))
+        if (digit == (wireCharge ? wireCode[chargeDigit] : batteryCode[chargeDigit]))
         {
             chargeDigit++;
             if (chargeDigit != 4) return;
@@ -845,27 +947,33 @@ public class script : MonoBehaviour {
             updateFace();
             StartCoroutine(cycle());
         }
-        while(picked && distance != 0)
+
+        while (picked && distance != 0)
         {
             yield return new WaitForSeconds(0.05f);
             distance--;
         }
-        if (distance==0 && picked) StartCoroutine(appendText("Found power source. Config: " + sourceChargeConfig, offyellow));
+
+        if (distance == 0 && picked)
+            StartCoroutine(appendText("Found power source. Config: " + sourceChargeConfig, offyellow));
     }
+
     IEnumerator holding()
     {
         holdBool = true;
         yield return new WaitForSeconds(5f);
         if (holdBool)
         {
-            StartCoroutine(appendText(picked ? "Put down." : "Picked up.", offgreen,false,FontStyle.Normal,false));
+            StartCoroutine(appendText(picked ? "Put down." : "Picked up.", offgreen, false, FontStyle.Normal, false));
             picked = !picked;
             holdBool = false;
             StartCoroutine(search());
         }
+
         updateFace();
         yield return null;
     }
+
     IEnumerator solvablesCheck()
     {
         while (!done)
@@ -875,18 +983,20 @@ public class script : MonoBehaviour {
             if (solvedAmount <= solvedModules) continue;
             for (int i = 0; i < 12; i++)
             {
-                if ((i != 5 && i != 6)) {
-                    int temp = ((150/(nonIgnored+1)) + Random.Range(1,10))*(solvedAmount-solvedModules);
+                if ((i != 5 && i != 6))
+                {
+                    int temp = ((150 / (nonIgnored + 1)) + Random.Range(1, 10)) * (solvedAmount - solvedModules);
                     itemBuffer[i] += temp;
                     itemAmount[i] += temp;
                 }
                 else
                 {
-                    int temp = Random.Range(0, 4)* (solvedAmount - solvedModules);
+                    int temp = Random.Range(0, 4) * (solvedAmount - solvedModules);
                     itemBuffer[i] += temp;
                     itemAmount[i] += temp;
                 }
             }
+
             batteryAmount += Random.Range(0, 5) / 3 * (solvedAmount - solvedModules);
             solvedModules = solvedAmount;
             redrawInventory();
@@ -899,41 +1009,59 @@ public class script : MonoBehaviour {
         switch (id)
         {
             // 0: pass().
-            case 0: 
+            case 0:
                 if (dAEAN < 0) dAEAN = 1f;
                 else dAEAN += dAEAN > 1.8f ? 0f : .25f;
-                AEAN -= (int)(Random.Range(initialStep, (int)(1.3f*initialStep)) * dAEAN); 
+                AEAN -= (int)(Random.Range(initialStep, (int)(1.3f * initialStep)) * dAEAN);
                 break;
-            
+
             // 1: fail().
-            case 1: 
+            case 1:
                 if (dAEAN > 0) dAEAN = -1f;
                 else dAEAN -= dAEAN < -1.8f ? 0f : .25f;
-                AEAN -= (int)(Random.Range(2*initialStep, 4*initialStep) * dAEAN); 
+                AEAN -= (int)(Random.Range(2 * initialStep, 4 * initialStep) * dAEAN);
                 break;
-            
+
             // 2: chargePress(). Penalty for wrong connection.
             case 2: AEAN += Random.Range(300, 600); break;
             // 3: Q release.
             case 3: AEAN += Random.Range(500, 1000); break;
         }
-        
+
         redrawVariables();
     }
 
-    void Start () {
-        colorArray = new[] { offwhite, offred, offyellow, offgreen, offblue, offorange, offblack, offbrown, offpurple, offgray, offpink, offcyan, offjade, offazure, offrose };
+    void Awake()
+    {
+        ModuleId = ModuleIdCounter++;
+    }
+
+    void Start()
+    {
+        colorArray = new[]
+        {
+            offwhite, offred, offyellow, offgreen, offblue, offorange, offblack, offbrown, offpurple, offgray, offpink,
+            offcyan, offjade, offazure, offrose
+        };
         //allDialogs = JsonConvert.DeserializeObject<DialogWrapper>(File.ReadAllText("Assets\\dialogs.json")).dialogs;
         allDialogs = JsonConvert.DeserializeObject<DialogWrapper>(dialogsJson).dialogs;
         videoPlayer.SetActive(false);
-        //distance = Random.Range(150, 301) * 20;
-        distance = 100;
+        distance = Random.Range(150, 301) * 20;
+        //distance = 100;
         AEAN = Random.Range(6000, 8000);
         BTR = Random.Range(10, 1000);
         states[0].SetActive(true);
-        for (int i=1; i<10; i++) states[i].SetActive(false);
-        GetComponent<KMSelectable>().OnFocus += delegate { selected = true; StartCoroutine(onFoc()); };
-        GetComponent<KMSelectable>().OnDefocus += delegate { selected = false; StartCoroutine(onDef()); };
+        for (int i = 1; i < 10; i++) states[i].SetActive(false);
+        GetComponent<KMSelectable>().OnFocus += delegate
+        {
+            selected = true;
+            StartCoroutine(onFoc());
+        };
+        GetComponent<KMSelectable>().OnDefocus += delegate
+        {
+            selected = false;
+            StartCoroutine(onDef());
+        };
         face.sprite = faces[faceID];
         generate();
         AbcdCalc();
@@ -944,9 +1072,11 @@ public class script : MonoBehaviour {
         //redrawInventory();
         clearScreen();
         //StartCoroutine(appendText("Initial message.", offwhite, false, FontStyle.Bold,false));
-        
-        if (ignoredModules == null) ignoredModules = Boss.GetIgnoredModules("AMM-041-292", new[] {
-            "14",
+
+        if (ignoredModules == null)
+            ignoredModules = Boss.GetIgnoredModules("AMM-041-292", new[]
+            {
+                "14",
                 "42",
                 "501",
                 "A>N<D",
@@ -1000,12 +1130,15 @@ public class script : MonoBehaviour {
                 "The Very Annoying Button",
                 "WAR",
                 "Whiteout"
-        });
-        if (!ignoredModules.Contains("AMM-041-292")) ignoredModules = ignoredModules.ToList().Concat(new List<string> { "AMM-041-292" }).ToArray();
+            });
+        if (!ignoredModules.Contains("AMM-041-292"))
+            ignoredModules = ignoredModules.ToList().Concat(new List<string> { "AMM-041-292" }).ToArray();
 
-        module.OnActivate += delegate {
+        module.OnActivate += delegate
+        {
             nonIgnored = bombInfo.GetSolvableModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count;
-            for (int i = 0; i < 12; i++) itemAmount[i] += i != 5 && i != 6? 150 / (nonIgnored + 1) + Random.Range(1, 10) : Random.Range(0, 4);
+            for (int i = 0; i < 12; i++)
+                itemAmount[i] += i != 5 && i != 6 ? 150 / (nonIgnored + 1) + Random.Range(1, 10) : Random.Range(0, 4);
             for (int i = 0; i < 12; i++) itemBuffer[i] = itemAmount[i];
             redrawInventory();
             redrawWireComposerScreen();
@@ -1013,267 +1146,542 @@ public class script : MonoBehaviour {
         StartCoroutine(solvablesCheck());
     }
 
-    void Update()
+    int expectedLastDigit(int id)
     {
-        if (!selected || dialogBusy) return;
-        if (Input.GetKeyDown(KeyCode.V))
+        switch (id)
         {
-            states[state].SetActive(false);
-            state = state == 3 ? 1 : 3;
-            states[state].SetActive(true);
+            case 0:
+            case 1:
+            case 2:
+            case 5: return 0;
+            case 3: return (ABCD[3] + ABCD[33]) * (ABCD[23] + ABCD[13]) % 10;
+            case 6: return (ABCD[6] + ABCD[36]) * (ABCD[26] + ABCD[16]) % 10;
+            case 4: return 10 * (ABCD[4] + ABCD[14]) / (ABCD[24] + ABCD[34] + 1) % 10;
+            default: return -1;
         }
-        if (Input.GetKeyDown(KeyCode.G))
-        {
-            states[state].SetActive(false);
-            state = state == 2 ? 1 : 2;
-            states[state].SetActive(true);
-        }
-        if (Input.GetKeyDown(KeyCode.I))
-        {
-            states[state].SetActive(false);
-            state = state == 5 ? 1 : 5;
-            states[state].SetActive(true);
-        }
-        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
-        {
-            if (state == 2)
-            {
-                page = page == 0 ? peakAmount - 1 : page - 1; redrawPeakDisplay();
-            }
-            if (state == 7)
-            {
-                wireComposerIndex = (wireComposerIndex + 10) % 15;
-                redrawWireComposerScreen();
-            }
-        }
-        if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            if (state == 2)
-            {
-                page = page == peakAmount - 1 ? 0 : page + 1; redrawPeakDisplay();
-            }
-            if (state == 7)
-            {
-                wireComposerIndex = (wireComposerIndex + 5) % 15;
-                redrawWireComposerScreen();
-            }
-        }
-        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
-        {
-            if (state == 5)
-            {
-                inventoryIndex = inventoryIndex == 0 ? 16 : inventoryIndex - 1; redrawIndex();
-            }
-            if (state == 7)
-            {
-                wireComposerIndex = 5 * (wireComposerIndex / 5) + (wireComposerIndex + 4) % 5;
-                redrawWireComposerScreen();
-            }
-            
-        }
-        if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
-        {
-            if (state == 5)
-            {
-                inventoryIndex = inventoryIndex == 16 ? 0 : inventoryIndex + 1; redrawIndex();
-            }
-            if (state == 7)
-            {
-                wireComposerIndex = 5 * (wireComposerIndex / 5) + (wireComposerIndex + 1) % 5;
-                redrawWireComposerScreen();
-            }
-        }
+    }
 
-        if (Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Keypad0))
+    void ACTION(char action)
+    {
+        switch (action)
         {
-            if (state == 5)
-            {
-                int last = (int)bombInfo.GetTime() % 10;
-                switch (inventoryIndex)
+            case 'V':
+                states[state].SetActive(false);
+                state = state == 3 ? 1 : 3;
+                states[state].SetActive(true);
+                return;
+            case 'G':
+                states[state].SetActive(false);
+                state = state == 2 ? 1 : 2;
+                states[state].SetActive(true);
+                return;
+            case 'I':
+                states[state].SetActive(false);
+                state = state == 5 ? 1 : 5;
+                states[state].SetActive(true);
+                return;
+            case 'A':
+                if (state == 2)
                 {
-                    case 0:
-                    { //Screwdriver
-                        if (last == (
-                                ((10 * (
-                                            (ABCD[4] + ABCD[14])) / (ABCD[24] + ABCD[34] + 1)
-                                    )) % 10) && table[4] != 0)
-                            pass(4);
-                        else fail(4);
-                        break;
-                    }
-                    case 1:
-                    { //Hammer
-                        if (last == (((ABCD[3] + ABCD[33]) * (ABCD[23] + ABCD[13])) % 10) && table[3] != 0)
-                            pass(3);
-                        else fail(3);
-                        break;
-                    }
-                    case 2:
-                    { //Compressed Air
-                        if (last != ABCD[7] && last != ABCD[17] && last != ABCD[27] && last != ABCD[37] && table[7] != 0)
-                            pass(7);
-                        else fail(7);
-                        break;
-                    }
-                    case 3:
-                    { //Oilcan
-                        if (last == 0 && table[0] != 0)
-                            pass(0);
-                        else fail(0);
-                        break;
-                    }
-                    default: return;
+                    page = page == 0 ? peakAmount - 1 : page - 1;
+                    redrawPeakDisplay();
                 }
-            }
 
-            else if (state == 8 && wireComposerCircuit < 10) { wireComposerCircuit = 9; refreshQuestion(); } else if (state == 9) { chargePress(0); } else if (state == 7) selectInWireComposer(-1); else if (state == 8 && wireComposerCircuit > 9) { checkRes(false);}
-
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
-        {
-            if (state == 5)
-            {
-                int last = (int)bombInfo.GetTime() % 10;
-                switch (inventoryIndex)
+                if (state == 7)
                 {
-                    case 1:
-                    { //Hammer
-                        if (last == (((ABCD[6] + ABCD[36]) * (ABCD[26] + ABCD[16])) % 10) && table[6] != 0)
-                            pass(6);
-                        else fail(6);
-                        break;
-                    }
-                    case 2:
-                    { //Compressed Air
-                        if (last != ABCD[8] && last != ABCD[18] && last != ABCD[28] && last != ABCD[38] && table[8] != 0)
-                            pass(8);
-                        else fail(8);
-                        break;
-                    }
-                    case 3:
-                    { //Oilcan
-                        if (last == 0 && table[1] != 0)
-                            pass(1);
-                        else fail(1);
-                        break;
-                    }
-                    default: return;
+                    wireComposerIndex = (wireComposerIndex + 10) % 15;
+                    redrawWireComposerScreen();
                 }
-            }
-            else if (state == 8 && wireComposerCircuit < 10) { wireComposerCircuit = 0; refreshQuestion(); } else if (state == 9) { chargePress(1); } else if (state == 7) if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) selectInWireComposer(6); else selectInWireComposer(0); else if (state == 8 && wireComposerCircuit > 9) { checkRes(true);} 
 
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
-        {
-            if (state == 5)
-            {
-                int last = (int)bombInfo.GetTime() % 10;
-                switch (inventoryIndex)
+                return;
+            case 'D':
+                if (state == 2)
                 {
-                    case 2:
-                    { //Compressed Air
-                        if (last != ABCD[9] && last != ABCD[19] && last != ABCD[29] && last != ABCD[39] && table[9] != 0)
-                            pass(9);
-                        else fail(9);
-                        break;
-                    }
-                    case 3:
-                    { //Oilcan
-                        if (last == 0 && table[2] != 0)
-                            pass(2);
-                        else fail(2);
-                        break;
-                    }
-                    default: return;
+                    page = page == peakAmount - 1 ? 0 : page + 1;
+                    redrawPeakDisplay();
                 }
-            }
-            else if (state == 8 && wireComposerCircuit < 10) { wireComposerCircuit = 1; refreshQuestion(); } else if (state == 9) { chargePress(2); } else if (state == 7) if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) selectInWireComposer(7); else selectInWireComposer(1);
 
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
-        {
-            if (state == 5)
-                if (inventoryIndex == 3)
-                    if ((int)bombInfo.GetTime() % 10 == 0 && table[5] != 0) pass(5);
-                    else fail(5);
-                else return;
-            else if (state == 8 && wireComposerCircuit < 10) { wireComposerCircuit = 2; refreshQuestion(); } else if (state == 9) { chargePress(3); } else if (state == 7) if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) selectInWireComposer(8); else selectInWireComposer(2);
-
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4)) if (state == 8 && wireComposerCircuit < 10) { wireComposerCircuit = 3; refreshQuestion(); } else if (state == 9) { chargePress(4); } else if (state == 7) if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) selectInWireComposer(9); else selectInWireComposer(3);
-        if (Input.GetKeyDown(KeyCode.Alpha5) || Input.GetKeyDown(KeyCode.Keypad5)) if (state == 8 && wireComposerCircuit < 10) { wireComposerCircuit = 4; refreshQuestion(); } else if (state == 9) { chargePress(5); } else if (state == 7) if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) selectInWireComposer(10);else selectInWireComposer(4);
-        if (Input.GetKeyDown(KeyCode.Alpha6) || Input.GetKeyDown(KeyCode.Keypad6)) if (state == 8 && wireComposerCircuit < 10) { wireComposerCircuit = 5; refreshQuestion(); } else if (state == 9) { chargePress(6); } else if (state == 7) if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) selectInWireComposer(11); else selectInWireComposer(5);
-        if (Input.GetKeyDown(KeyCode.Alpha7) || Input.GetKeyDown(KeyCode.Keypad7)) if (state == 8 && wireComposerCircuit < 10) { wireComposerCircuit = 6; refreshQuestion(); } else if (state == 9) { chargePress(7); }
-        if (Input.GetKeyDown(KeyCode.Alpha8) || Input.GetKeyDown(KeyCode.Keypad8)) if (state == 8 && wireComposerCircuit < 10) { wireComposerCircuit = 7; refreshQuestion(); } else if (state == 9) { chargePress(8); }
-        if (Input.GetKeyDown(KeyCode.Alpha9) || Input.GetKeyDown(KeyCode.Keypad9)) if (state == 8 && wireComposerCircuit < 10) { wireComposerCircuit = 8; refreshQuestion(); } else if (state == 9) { chargePress(9); }
-
-        if (Input.GetKeyDown(KeyCode.Q) && !holdBool && !charging)
-        {
-            if (picked==false && distance == 0)
-            {
-                wireCharge = true;
-                wireChargeMenu.SetActive(true);
-                batteryChargeMenu.SetActive(false);
-                setState(9);
-            }
-            else StartCoroutine(holding());
-        }
-        if (Input.GetKeyUp(KeyCode.Q) && holdBool && !charging)
-        {
-            if (picked || distance != 0)
-            {
-                holdBool = false;
-                picked = false;
-                aeanChange(3);
-                check();
-                updateFace();
-                StartCoroutine(appendText("Dropped.", offred,false, FontStyle.Normal, false));
-                StopCoroutine(holding());
-            }
-        }
-
-        if (Input.GetKeyDown(KeyCode.Return)|| Input.GetKeyDown(KeyCode.KeypadEnter))
-        {
-            if (state == 5)
-            {
-                if (inventoryIndex > 3 && inventoryIndex < 16) setState(7);
-                else if (inventoryIndex == 16  && !charging && batteryAmount>0)
+                if (state == 7)
                 {
-                    batteryAmount--;
-                    redrawInventory();
-                    wireCharge = false;
-                    wireChargeMenu.SetActive(false);
-                    batteryChargeMenu.SetActive(true);
-                    setState(9);
+                    wireComposerIndex = (wireComposerIndex + 5) % 15;
+                    redrawWireComposerScreen();
                 }
-            } else if (state == 7)
-            {
-                if (resistance() != 0)
+
+                return;
+            case 'W':
+                if (state == 5)
                 {
-                    wireComposerCircuit = -1;
-                    refreshQuestion();
-                    setState(8);
+                    inventoryIndex = inventoryIndex == 0 ? 16 : inventoryIndex - 1;
+                    redrawIndex();
                 }
-            } else if (state == 8)
-            {
-                if (wireComposerCircuit > -1 && wireComposerCircuit < 10)
+
+                if (state == 7)
                 {
-                    if (table[10 + wireComposerCircuit] == 0) fail(10 + wireComposerCircuit);
-                    else if (table[10 + wireComposerCircuit] == 1) checkRes(false);
-                    else if (table[10 + wireComposerCircuit] == 2)
+                    wireComposerIndex = 5 * (wireComposerIndex / 5) + (wireComposerIndex + 4) % 5;
+                    redrawWireComposerScreen();
+                }
+
+                return;
+            case 'S':
+                if (state == 5)
+                {
+                    inventoryIndex = inventoryIndex == 16 ? 0 : inventoryIndex + 1;
+                    redrawIndex();
+                }
+
+                if (state == 7)
+                {
+                    wireComposerIndex = 5 * (wireComposerIndex / 5) + (wireComposerIndex + 1) % 5;
+                    redrawWireComposerScreen();
+                }
+
+                return;
+            case '0':
+                if (state == 5)
+                {
+                    int last = (int)bombInfo.GetTime() % 10;
+                    switch (inventoryIndex)
                     {
-                        wireComposerCircuit += 10;
+                        case 0:
+                        {
+                            //Screwdriver
+                            Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected on {2}. {3}", ModuleId, last,
+                                expectedLastDigit(4), last == expectedLastDigit(4) ? "Correct." : "Wrong.");
+                            if (last == expectedLastDigit(4) && table[4] != 0)
+                                pass(4);
+                            else fail(4);
+                            break;
+                        }
+                        case 1:
+                        {
+                            //Hammer
+                            Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected on {2}. {3}", ModuleId, last,
+                                expectedLastDigit(3), last == expectedLastDigit(3) ? "Correct." : "Wrong.");
+                            if (last == expectedLastDigit(3) && table[3] != 0)
+                                pass(3);
+                            else fail(3);
+                            break;
+                        }
+                        case 2:
+                        {
+                            //Compressed Air
+                            Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected not on [{2},{3},{4},{5}]. {6}",
+                                ModuleId,
+                                last, ABCD[7], ABCD[17], ABCD[27], ABCD[37],
+                                last != ABCD[7] && last != ABCD[17] && last != ABCD[27] && last != ABCD[37]
+                                    ? "Correct."
+                                    : "Wrong.");
+                            if (last != ABCD[7] && last != ABCD[17] && last != ABCD[27] && last != ABCD[37] &&
+                                table[7] != 0)
+                                pass(7);
+                            else fail(7);
+                            break;
+                        }
+                        case 3:
+                        {
+                            //Oilcan
+                            Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected on 0. {2}", ModuleId, last,
+                                last == 0 ? "Correct." : "Wrong.");
+                            if (last == 0 && table[0] != 0)
+                                pass(0);
+                            else fail(0);
+                            break;
+                        }
+                        default: return;
+                    }
+                }
+
+                else if (state == 8 && wireComposerCircuit < 10)
+                {
+                    wireComposerCircuit = 9;
+                    refreshQuestion();
+                }
+                else if (state == 9)
+                {
+                    chargePress(0);
+                }
+                else if (state == 7) selectInWireComposer(-1);
+                else if (state == 8 && wireComposerCircuit > 9)
+                {
+                    checkRes(true);
+                }
+
+                return;
+            case '1':
+                if (state == 5)
+                {
+                    int last = (int)bombInfo.GetTime() % 10;
+                    switch (inventoryIndex)
+                    {
+                        case 1:
+                        {
+                            //Hammer
+                            Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected on {2}. {3}", ModuleId, last,
+                                expectedLastDigit(6), last == expectedLastDigit(6) ? "Correct." : "Wrong.");
+                            if (last == expectedLastDigit(6) && table[6] != 0)
+                                pass(6);
+                            else fail(6);
+                            break;
+                        }
+                        case 2:
+                        {
+                            //Compressed Air
+                            Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected not on [{2},{3},{4},{5}]. {6}",
+                                ModuleId,
+                                last, ABCD[8], ABCD[18], ABCD[28], ABCD[38],
+                                last != ABCD[8] && last != ABCD[18] && last != ABCD[28] && last != ABCD[38]
+                                    ? "Correct."
+                                    : "Wrong.");
+                            if (last != ABCD[8] && last != ABCD[18] && last != ABCD[28] && last != ABCD[38] &&
+                                table[8] != 0)
+                                pass(8);
+                            else fail(8);
+                            break;
+                        }
+                        case 3:
+                        {
+                            //Oilcan
+                            Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected on 0. {2}", ModuleId, last,
+                                last == 0 ? "Correct." : "Wrong.");
+                            if (last == 0 && table[1] != 0)
+                                pass(1);
+                            else fail(1);
+                            break;
+                        }
+                        default: return;
+                    }
+                }
+                else if (state == 8 && wireComposerCircuit < 10)
+                {
+                    wireComposerCircuit = 0;
+                    refreshQuestion();
+                }
+                else if (state == 9)
+                {
+                    chargePress(1);
+                }
+                else if (state == 7) selectInWireComposer(0);
+                else if (state == 8 && wireComposerCircuit > 9)
+                {
+                    checkRes(false);
+                }
+
+                return;
+            case '2':
+                if (state == 5)
+                {
+                    int last = (int)bombInfo.GetTime() % 10;
+                    switch (inventoryIndex)
+                    {
+                        case 2:
+                        {
+                            //Compressed Air
+                            Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected not on [{2},{3},{4},{5}]. {6}",
+                                ModuleId,
+                                last, ABCD[9], ABCD[19], ABCD[29], ABCD[39],
+                                last != ABCD[9] && last != ABCD[19] && last != ABCD[29] && last != ABCD[39]
+                                    ? "Correct."
+                                    : "Wrong.");
+                            if (last != ABCD[9] && last != ABCD[19] && last != ABCD[29] && last != ABCD[39] &&
+                                table[9] != 0)
+                                pass(9);
+                            else fail(9);
+                            break;
+                        }
+                        case 3:
+                        {
+                            //Oilcan
+                            Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected on 0. {2}", ModuleId, last,
+                                last == 0 ? "Correct." : "Wrong.");
+                            if (last == 0 && table[2] != 0)
+                                pass(2);
+                            else fail(2);
+                            break;
+                        }
+                        default: return;
+                    }
+                }
+                else if (state == 8 && wireComposerCircuit < 10)
+                {
+                    wireComposerCircuit = 1;
+                    refreshQuestion();
+                }
+                else if (state == 9)
+                {
+                    chargePress(2);
+                }
+                else if (state == 7) selectInWireComposer(1);
+
+                return;
+
+            case '3':
+                if (state == 5)
+                    if (inventoryIndex == 3)
+                    {
+                        Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected on 0. {2}", ModuleId,
+                            (int)bombInfo.GetTime() % 10,
+                            (int)bombInfo.GetTime() % 10 == 0 ? "Correct." : "Wrong.");
+                        if ((int)bombInfo.GetTime() % 10 == 0 && table[5] != 0) pass(5);
+                        else fail(5);
+                    }
+                    else return;
+                else if (state == 8 && wireComposerCircuit < 10)
+                {
+                    wireComposerCircuit = 2;
+                    refreshQuestion();
+                }
+                else if (state == 9)
+                {
+                    chargePress(3);
+                }
+                else if (state == 7) selectInWireComposer(2);
+
+                return;
+            case '4':
+                if (Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4))
+                    if (state == 8 && wireComposerCircuit < 10)
+                    {
+                        wireComposerCircuit = 3;
                         refreshQuestion();
                     }
+                    else if (state == 9)
+                    {
+                        chargePress(4);
+                    }
+                    else if (state == 7) selectInWireComposer(3);
+
+                return;
+            case '5':
+                if (Input.GetKeyDown(KeyCode.Alpha5) || Input.GetKeyDown(KeyCode.Keypad5))
+                    if (state == 8 && wireComposerCircuit < 10)
+                    {
+                        wireComposerCircuit = 4;
+                        refreshQuestion();
+                    }
+                    else if (state == 9)
+                    {
+                        chargePress(5);
+                    }
+                    else if (state == 7) selectInWireComposer(4);
+
+                return;
+            case '6':
+                if (Input.GetKeyDown(KeyCode.Alpha6) || Input.GetKeyDown(KeyCode.Keypad6))
+                    if (state == 8 && wireComposerCircuit < 10)
+                    {
+                        wireComposerCircuit = 5;
+                        refreshQuestion();
+                    }
+                    else if (state == 9)
+                    {
+                        chargePress(6);
+                    }
+                    else if (state == 7) selectInWireComposer(5);
+
+                return;
+            case '7':
+                if (state == 8 && wireComposerCircuit < 10)
+                {
+                    wireComposerCircuit = 6;
+                    refreshQuestion();
                 }
-            }
+                else if (state == 9)
+                {
+                    chargePress(7);
+                }
+
+                return;
+            case '8':
+                if (state == 8 && wireComposerCircuit < 10)
+                {
+                    wireComposerCircuit = 7;
+                    refreshQuestion();
+                }
+                else if (state == 9)
+                {
+                    chargePress(8);
+                }
+
+                return;
+            case '9':
+                if (state == 8 && wireComposerCircuit < 10)
+                {
+                    wireComposerCircuit = 8;
+                    refreshQuestion();
+                }
+                else if (state == 9)
+                {
+                    chargePress(9);
+                }
+
+                return;
+            case 'E':
+            case 'R':
+                if (state == 5)
+                {
+                    if (inventoryIndex > 3 && inventoryIndex < 16) setState(7);
+                    else if (inventoryIndex == 16 && !charging && batteryAmount > 0)
+                    {
+                        batteryAmount--;
+                        redrawInventory();
+                        wireCharge = false;
+                        wireChargeMenu.SetActive(false);
+                        batteryChargeMenu.SetActive(true);
+                        setState(9);
+                    }
+                }
+                else if (state == 7)
+                {
+                    if (resistance() != 0)
+                    {
+                        wireComposerCircuit = -1;
+                        refreshQuestion();
+                        setState(8);
+                    }
+                }
+                else if (state == 8)
+                {
+                    if (wireComposerCircuit > -1 && wireComposerCircuit < 10)
+                    {
+                        if (table[10 + wireComposerCircuit] == 0) fail(10 + wireComposerCircuit);
+                        else if (table[10 + wireComposerCircuit] == 1) checkRes(false);
+                        else if (table[10 + wireComposerCircuit] == 2)
+                        {
+                            wireComposerCircuit += 10;
+                            refreshQuestion();
+                        }
+                    }
+                }
+
+                return;
+            case 'B':
+                if (state == 7) setState(5);
+                else if (state == 8) setState(7);
+                return;
+            case '!':
+                selectInWireComposer(6);
+                return;
+            case '@':
+                selectInWireComposer(7);
+                return;
+            case '#':
+                selectInWireComposer(8);
+                return;
+            case '$':
+                selectInWireComposer(9);
+                return;
+            case '%':
+                selectInWireComposer(10);
+                return;
+            case '^':
+                selectInWireComposer(11);
+                return;
+
+            case 'Q':
+                if (!picked && distance == 0)
+                {
+                    wireCharge = true;
+                    wireChargeMenu.SetActive(true);
+                    batteryChargeMenu.SetActive(false);
+                    setState(9);
+                }
+                else StartCoroutine(holding());
+
+                return;
+            case 'q':
+                if (picked || distance != 0)
+                {
+                    holdBool = false;
+                    picked = false;
+                    aeanChange(3);
+                    check();
+                    updateFace();
+                    StartCoroutine(appendText("Dropped.", offred, false, FontStyle.Normal, false));
+                    StopCoroutine(holding());
+                }
+
+                return;
+            case '§':
+                if (!picked && distance == 0)
+                {
+                    wireCharge = true;
+                    wireChargeMenu.SetActive(true);
+                    batteryChargeMenu.SetActive(false);
+                    setState(9);
+                }
+                else
+                {
+                    StartCoroutine(appendText(picked ? "Put down." : "Picked up.", offgreen, false, FontStyle.Normal, false));
+                    picked = !picked;
+                    StartCoroutine(search());
+                    updateFace();
+                }
+                return;
         }
-        if (Input.GetKeyDown(KeyCode.Backspace))
+    }
+
+    void Update()
+    {
+        if (!selected || dialogBusy || ModuleSolved) return;
+        if (Input.GetKeyDown(KeyCode.V)) ACTION('V');
+        if (Input.GetKeyDown(KeyCode.G)) ACTION('G');
+        if (Input.GetKeyDown(KeyCode.I)) ACTION('I');
+        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow)) ACTION('A');
+        if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow)) ACTION('D');
+        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) ACTION('W');
+        if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) ACTION('S');
+        if (Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Keypad0)) ACTION('0');
+        if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
+            if (state == 7 && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))) ACTION('!');
+            else ACTION('1');
+        if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
+            if (state == 7 && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))) ACTION('@');
+            else ACTION('2');
+        if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
+            if (state == 7 && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))) ACTION('#');
+            else ACTION('3');
+        if (Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4))
+            if (state == 7 && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))) ACTION('$');
+            else ACTION('4');
+        if (Input.GetKeyDown(KeyCode.Alpha5) || Input.GetKeyDown(KeyCode.Keypad5))
+            if (state == 7 && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))) ACTION('%');
+            else ACTION('5');
+        if (Input.GetKeyDown(KeyCode.Alpha6) || Input.GetKeyDown(KeyCode.Keypad6))
+            if (state == 7 && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))) ACTION('^');
+            else ACTION('6');
+        if (Input.GetKeyDown(KeyCode.Alpha7) || Input.GetKeyDown(KeyCode.Keypad7)) ACTION('7');
+        if (Input.GetKeyDown(KeyCode.Alpha8) || Input.GetKeyDown(KeyCode.Keypad8)) ACTION('8');
+        if (Input.GetKeyDown(KeyCode.Alpha9) || Input.GetKeyDown(KeyCode.Keypad9)) ACTION('9');
+        if (Input.GetKeyDown(KeyCode.Q) && !holdBool && !charging) ACTION('Q');
+        if (Input.GetKeyUp(KeyCode.Q) && holdBool && !charging) ACTION('q');
+        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)) ACTION('E');
+        if (Input.GetKeyDown(KeyCode.Backspace)) ACTION('B');
+    }
+
+#pragma warning disable 414
+    private readonly string TwitchHelpMessage =
+        @"Use !{0} notice to make AMM notice you. Use !{0} <key sequence> to input keys. To input Shift+<num> use !, @, #, $, %, ^. To input Enter/Return use E or R. To input Backspace use B. Do not put spaces between keys. Example: !{0} ISSSSEDD@E1";
+#pragma warning restore 414
+
+    IEnumerator ProcessTwitchCommand(string Command)
+    {
+        yield return null;
+        var commandArgs = Command.ToUpperInvariant().Trim();
+        Debug.Log(commandArgs);
+        if (commandArgs == "NOTICE" && !start) {
+            selected = true;
+            yield return onFoc();
+        }
+        else if (start)
         {
-            if (state == 7) setState(5);
-            else if (state == 8) setState(7);
+            if (!commandArgs.RegexMatch("([0-9VGIADWSERBQ!@#$%\\^])+")) yield return "sendtochaterror Сommand is not valid.";
+            for (int i = 0; i < commandArgs.Length; i++) ACTION(commandArgs[i] == 'Q' ? '§' : commandArgs[i]);
         }
-            
-        //if (Input.GetKeyDown(KeyCode.Home)) { if (!done) StartCoroutine(SOLVE()); }
+    }
+
+    IEnumerator TwitchHandleForcedSolve()
+    {
+        yield return null;
+        yield return SOLVE();
     }
 }
