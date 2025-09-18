@@ -3,8 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Video;
-using KeepCoding;
 using Random = UnityEngine.Random;
 
 
@@ -15,13 +13,8 @@ public class script : MonoBehaviour
     private bool ModuleSolved;
 
     public dialogWrap dialogWrapper;
+    public VideoScreenPlayer videoScreenPlayer;
     
-    public VideoPlayer Video;
-    public VideoClip[] solveVideos;
-    private static VideoClip[] externalSolveVideos;
-    public KMAudio Audio;
-    public AudioClip[] solveAudios = new AudioClip[64];
-    public GameObject videoPlayer;
 
     public KMBossModule Boss;
     private string[] ignoredModules;
@@ -579,18 +572,7 @@ public class script : MonoBehaviour
         setState(4);
     }
 
-    IEnumerator playRandomVideo()
-    {
-        int ind = Random.Range(0, 64);
-        if (!Application.isEditor && externalSolveVideos == null)
-            externalSolveVideos = PathManager.GetAssets<VideoClip>("ammvideo");
-        Video.clip = (!Application.isEditor ? externalSolveVideos : solveVideos)[ind];
-        Video.Play();
-        videoPlayer.SetActive(true);
-        Audio.PlaySoundAtTransform(solveAudios[ind].name, transform);
-        yield return new WaitForSeconds(solveAudios[ind].length);
-        videoPlayer.SetActive(false);
-    }
+    
 
     IEnumerator SOLVE()
     {
@@ -604,7 +586,7 @@ public class script : MonoBehaviour
         states[1].SetActive(false);
         states[0].SetActive(false);
         selected = false;
-        yield return playRandomVideo();
+        yield return videoScreenPlayer.playRandomVideo();
         setState(6);
         GetComponent<KMBombModule>().HandlePass();
         ModuleSolved = true;
@@ -941,7 +923,6 @@ public class script : MonoBehaviour
             offwhite, offred, offyellow, offgreen, offblue, offorange, offblack, offbrown, offpurple, offgray, offpink,
             offcyan, offjade, offazure, offrose
         };
-        videoPlayer.SetActive(false);
         distance = Random.Range(150, 301) * 20;
         //distance = 100;
         AEAN = Random.Range(6000, 8000);
@@ -1554,6 +1535,7 @@ public class script : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.Q) && holdBool && !charging) ACTION('q');
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)) ACTION('E');
         if (Input.GetKeyDown(KeyCode.Backspace)) ACTION('B');
+        //if (Input.GetKeyDown(KeyCode.Home)) StartCoroutine(SOLVE());
     }
 
 #pragma warning disable 414
