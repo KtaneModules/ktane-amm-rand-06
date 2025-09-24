@@ -1,14 +1,246 @@
 {"dialogs":[
     {
-        "name": "initial",
+        "name": "debug",
         "dialog": [
             {
-                "text": ["Note from the developer: Dialogs are in WIP. Keep that in mind."],
-                "color": 4,
+                "text": ["<color=#628bf3ff>Note from the developer: Dialogs are in WIP. Keep that in mind.</color>"],
                 "rightAlign": false,
-                "style": 0,
                 "anim": false
             }
         ]
-    }
+    },
+	{
+        "name": "drop",
+        "dialog": [
+            {
+                "text": ["<color=#cb3c3cff>Dropped.</color>"],
+                "rightAlign": false,
+                "anim": false
+            }
+        ]
+    },
+	{
+        "name": "failedconfig",
+        "dialog": [
+            {
+                "text": ["<color=#cb3c3cff>Failed. New config: {0}</color>"],
+                "rightAlign": false,
+                "anim": false
+            }
+        ]
+    },
+	{
+        "name": "charge",
+        "dialog": [
+            {
+                "text": ["<color=#6ec55cff>Charging...</color>"],
+                "rightAlign": false,
+                "anim": false
+            }
+        ]
+    },
+	{
+        "name": "foundpower",
+        "dialog": [
+            {
+                "text": ["<color=#6ec55cff>Found power source. Config: {0}</color>"],
+                "rightAlign": false,
+                "anim": false
+            }
+        ]
+    },
+	{
+        "name": "picked",
+        "dialog": [
+            {
+                "text": ["<color=#6ec55cff>Picked up.</color>"],
+                "rightAlign": false,
+                "anim": false
+            }
+        ]
+    },
+	{
+        "name": "placed",
+        "dialog": [
+            {
+                "text": ["<color=#6ec55cff>Put down.</color>"],
+                "rightAlign": false,
+                "anim": false
+            }
+        ]
+    },
+	
+	
+	{
+		"name": "initial",
+		"dialog":[
+			{
+				"text": ["...Who are you? Did Turbic send you?"],
+				"rightAlign": false
+			},
+			{
+				"text": ["Don't worry about it. What <b>happened</b> to you?"],
+				"rightAlign": true
+			},
+			{
+				"text": ["..."],
+				"rightAlign": false
+			},
+			{
+				"text": ["Blunt force trauma."],
+				"rightAlign": false
+			},
+			{
+				"text": ["Hm."],
+				"rightAlign": true
+			},
+			{
+				"text": ["Okay..."],
+				"rightAlign": true
+			},
+			{
+				"text": ["I'm gonna try fixing you, alright?"],
+				"rightAlign": true
+			},
+		]
+	},
+	{
+		"name": "g1",
+		"dialog":[
+			{
+				"text": ["Could you show me your vibrodiagnostics graph?"],
+				"rightAlign": true
+			}
+		]
+	},
+	{
+		"name": "v1",
+		"dialog":[
+			{
+				"text": ["Could you show me your voltages?"],
+				"rightAlign": true
+			}
+		]
+	},
+	{
+		"name": "gv2",
+		"dialog":[
+			{
+				"text": ["..."],
+				"rightAlign": false
+			},
+			{
+				"text": ["Please. I'm trying to help you."],
+				"rightAlign": true
+			},
+			{
+				"text": ["I don't--"],
+				"rightAlign": false
+			},
+			{
+				"text": ["..."],
+				"rightAlign": false
+			},
+			{
+				"text": ["I don't trust you."],
+				"rightAlign": false
+			},
+		]
+	},
+	{
+		"name": "gv3normal",
+		"dialog":[
+			{
+				"text": ["It's scary, I know. But we don't have a lot of options here."],
+				"rightAlign": true
+			}
+		]
+	},
+	{
+		"name": "gv3RISK",
+		"dialog":[
+			{
+				"text": ["<color=#ecdb44ff>Would you prefer if I left you here to die? <b>You're going to have to trust me.</b></color>"],
+				"rightAlign": true
+			}
+		]
+	},
+	{
+		"name": "BScorrect1",
+		"dialog":[
+			{
+				"text": ["Okay. Try moving it now."],
+				"rightAlign": true
+			},
+			{
+				"text": ["..."],
+				"rightAlign": false
+			},
+			{
+				"text": ["..."],
+				"rightAlign": false
+			},
+			{
+				"text": ["<color=#6ec55cff>...I'm getting perfect feedback. No issues present.</color>"],
+				"rightAlign": false
+			},
+			{
+				"text": ["Good. That's good!"],
+				"rightAlign": true
+			},
+		]
+	},
+	{
+		"name": "BScorrect2H",
+		"dialog":[
+			{
+				"text": ["M'kay... these are all oiled up. Feel any better?"],
+				"rightAlign": true
+			},
+			{
+				"text": ["Y--Yes. Better."],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "BScorrect2L",
+		"dialog":[
+			{
+				"text": ["M'kay... these are all oiled up. Feel any better?"],
+				"rightAlign": true
+			},
+			{
+				"text": ["...Yes. <b>Significantly</b> better."],
+				"rightAlign": false
+			},
+			{
+				"text": ["..."],
+				"rightAlign": false
+			},
+			{
+				"text": ["...Thanks."],
+				"rightAlign": false
+			},
+		]
+	},
+	{
+		"name": "BSwrong",
+		"dialog":[
+			{
+				"text": ["<color=#cb3c3cff>Ą̷Ʀ̴ƴ̵Ƕ̵Ǣ̸ɇ̸%̷Ƣ̴S̷T̵O̶P̸STOPSTOP</color>"],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "SHcorrect",
+		"dialog":[
+			{
+				"text": ["Hold still. Trying to put your shaft back."],
+				"rightAlign": false
+			}
+		]
+	},
+	
 ]}

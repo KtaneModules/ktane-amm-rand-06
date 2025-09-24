@@ -33,12 +33,11 @@ public class script : MonoBehaviour
     private bool charging;
     private bool start;
 
-    public TextMesh[] amounts = new TextMesh[12];
-    public TextMesh[] brackets = new TextMesh[15];
-    public TextMesh[] letters = new TextMesh[45];
-    private int[] itemAmount = new int[12];
-    private int[] itemBuffer = new int[12];
-    private int[] wireComposerConfig = new int[15];
+    public TextMesh[] amounts;
+    public TextMesh[] brackets;
+    private readonly int[] itemAmount = new int[12];
+    private readonly int[] itemBuffer = new int[12];
+    private readonly int[] wireComposerConfig = new int[15];
     private int wireComposerIndex;
     private int batteryAmount;
 
@@ -72,9 +71,9 @@ public class script : MonoBehaviour
     private readonly float[] itemRes = { 1f, 4f, 10f, 25f, 40f, 200f, 100f, 250f, 440f, 720f, 1000f, 5000f };
 
     private readonly int[] limits = { 1000, 1600, 2300, 2600, 4100, 4900, 5600, 7200, 8200, 9100, 10000 };
-    private int[] freqs = new int[10];
-    private int[] table = new int[20];
-    private int[] graphInts = new int[52];
+    private readonly int[] freqs = new int[10];
+    private readonly int[] table = new int[20];
+    private readonly int[] graphInts = new int[52];
     private int[] peakFreqs;
     private int[] peakAmps;
     private int[] peakIds;
@@ -87,9 +86,9 @@ public class script : MonoBehaviour
 
     private int inventoryIndex;
 
-    private int[] ABCD = Enumerable.Repeat(-1, 40).ToArray();
+    private readonly int[] ABCD = Enumerable.Repeat(-1, 40).ToArray();
 
-    private int[] voltages = new int[10];
+    private readonly int[] voltages = new int[10];
     private readonly int[] nomVoltages = { 416000, 750000, 1200000, 3000000, 4000000, 500, 800, 1200, 2000, 4500 };
     private readonly int[] nomResistances = { 52000, 60000, 100000, 50000, 250000, 200, 360, 600, 200, 2250 };
 
@@ -102,8 +101,8 @@ public class script : MonoBehaviour
     private int faceID = 20;
     private int distance;
     private int chargeDigit;
-    private int[] wireCode = new int[4];
-    private int[] batteryCode = new int[4];
+    private readonly int[] wireCode = new int[4];
+    private readonly int[] batteryCode = new int[4];
     private bool wireCharge;
     public GameObject wireChargeMenu;
     public GameObject batteryChargeMenu;
@@ -118,7 +117,7 @@ public class script : MonoBehaviour
     public TextMesh inventory;
     private string sourceChargeConfig = "";
 
-    public static readonly Color[] colorArray = {
+    private static readonly Color[] colorArray = {
         new Color(230 / 255f, 223 / 255f, 215 / 255f),
         new Color(203 / 255f, 60 / 255f, 60 / 255f),
         new Color(236 / 255f, 219 / 255f, 68 / 255f),
@@ -136,6 +135,21 @@ public class script : MonoBehaviour
         new Color(168 / 255f, 86 / 255f, 121 / 255f)
     };
 
+    private readonly string[] wiresText = {
+        "<color={0}>--</color><color=#585858ff>K</color><color={0}>--</color>",
+        "<color={0}>--</color><color=#cb3c3cff>R</color><color={0}>--</color>",
+        "<color={0}>--</color><color=#ecdb44ff>Y</color><color={0}>--</color>",
+        "<color={0}>--</color><color=#628bf3ff>B</color><color={0}>--</color>",
+        "<color={0}>--</color><color=#e6dfd7ff>W</color><color={0}>--</color>",
+        "<color={0}>--</color><color=#6ec55cff>G</color><color={0}>--</color>",
+        "<color={0}>#</color><color=#8b4c16ff>N</color><color=#585858ff>K</color><color=#8b4c16ff>N</color><color={0}>#</color>",
+        "<color={0}>#</color><color=#cb3c3cff>R</color><color=#6ec55cff>G</color><color=#8b4c16ff>N</color><color={0}>#</color>",
+        "<color={0}>#</color><color=#ecdb44ff>Y</color><color=#ecdb44ff>Y</color><color=#8b4c16ff>N</color><color={0}>#</color>",
+        "<color={0}>#</color><color=#b25dd6ff>P</color><color=#cb3c3cff>R</color><color=#8b4c16ff>N</color><color={0}>#</color>",
+        "<color={0}>#</color><color=#8b4c16ff>N</color><color=#585858ff>K</color><color=#cb3c3cff>R</color><color={0}>#</color>",
+        "<color={0}>#</color><color=#6ec55cff>G</color><color=#585858ff>K</color><color=#cb3c3cff>R</color><color={0}>#</color>"
+    };
+    
     string divideBy1000(int num)
     {
         return num / 1000 + (num % 1000 < 10 ? ".00" : num % 1000 < 100 ? ".0" : ".") + num % 1000;
@@ -144,11 +158,6 @@ public class script : MonoBehaviour
     string divideBy100(int num)
     {
         return num / 100 + (num % 100 < 10 ? ".0" : ".") + num % 100;
-    }
-
-    string spaces(int amount)
-    {
-        return Enumerable.Repeat(" ", amount).Join("");
     }
 
     IEnumerator onDef()
@@ -192,7 +201,6 @@ public class script : MonoBehaviour
             peakAmps1[i] = peakAmps[i + (i < index ? 0 : 1)];
             peakIds1[i] = peakIds[i + (i < index ? 0 : 1)];
         }
-
         peakFreqs = peakFreqs1;
         peakAmps = peakAmps1;
         peakIds = peakIds1;
@@ -206,7 +214,7 @@ public class script : MonoBehaviour
         {
             peakShow.text = "Local peak " + page + ":\n\n" + divideBy1000(peakAmps[page]) + " dB @ " +
                             divideBy1000(peakFreqs[page]) + " kHz";
-            peakList.text = (page + 1).ToString() + "/" + peakAmount;
+            peakList.text = page + 1 + "/" + peakAmount;
             for (var i = 0; i < peakAmount; i++) graph[peakIds[i]].color = i == page ? colorArray[2] : colorArray[0];
         }
         else
@@ -229,12 +237,12 @@ public class script : MonoBehaviour
         string ans = "";
         for (int i = 0; i < 10; i++)
         {
-            ans += varNames[i] + ":" + spaces(17 - divideBy100(voltages[i]).Length) + divideBy100(voltages[i]) + "\n";
+            ans += varNames[i] + ":" + new string(' ', 24 - divideBy100(voltages[i]).Length) + divideBy100(voltages[i]) + "\n";
         }
 
         ans += "\n\n";
-        ans += varNames[10] + ":" + spaces(17 - divideBy100(AEAN).Length) + divideBy100(AEAN) + "\n";
-        ans += varNames[11] + ":" + spaces(17 - divideBy100(BTR).Length) + divideBy100(BTR) + "\n";
+        ans += varNames[10] + ":" + new string(' ', 24 - divideBy100(AEAN).Length) + divideBy100(AEAN) + "\n";
+        ans += varNames[11] + ":" + new string(' ', 24 - divideBy100(BTR).Length) + divideBy100(BTR) + "\n";
         varList.text = ans;
     }
 
@@ -336,139 +344,10 @@ public class script : MonoBehaviour
 
     void redrawWireComposerScreen()
     {
-        for (int i = 0; i < 12; i++)
-        {
-            amounts[i].text = "x" + itemBuffer[i];
-        }
-
-        for (int i = 0; i < 15; i++)
-        {
-            if (wireComposerConfig[i] > -1 && wireComposerConfig[i] < 6) brackets[i].text = "-- --";
-            else if (wireComposerConfig[i] > 5) brackets[i].text = "#   #";
-            else brackets[i].text = (i == wireComposerIndex) ? "> ? <" : "";
-            switch (wireComposerConfig[i])
-            {
-                case -1:
-                {
-                    letters[3 * i + 0].text = "";
-                    letters[3 * i + 1].text = "";
-                    letters[3 * i + 2].text = "";
-
-                    break;
-                }
-                case 0:
-                {
-                    letters[3 * i + 0].text = "";
-                    letters[3 * i + 1].text = "K";
-                    letters[3 * i + 2].text = "";
-                    letters[3 * i + 1].color = colorArray[6];
-
-                    break;
-                }
-                case 1:
-                {
-                    letters[3 * i + 0].text = "";
-                    letters[3 * i + 1].text = "R";
-                    letters[3 * i + 2].text = "";
-                    letters[3 * i + 1].color = colorArray[1];
-                    break;
-                }
-                case 2:
-                {
-                    letters[3 * i + 0].text = "";
-                    letters[3 * i + 1].text = "Y";
-                    letters[3 * i + 2].text = "";
-                    letters[3 * i + 1].color = colorArray[2];
-                    break;
-                }
-                case 3:
-                {
-                    letters[3 * i + 0].text = "";
-                    letters[3 * i + 1].text = "B";
-                    letters[3 * i + 2].text = "";
-                    letters[3 * i + 1].color = colorArray[4];
-                    break;
-                }
-                case 4:
-                {
-                    letters[3 * i + 0].text = "";
-                    letters[3 * i + 1].text = "W";
-                    letters[3 * i + 2].text = "";
-                    letters[3 * i + 1].color = colorArray[0];
-                    break;
-                }
-                case 5:
-                {
-                    letters[3 * i + 0].text = "";
-                    letters[3 * i + 1].text = "G";
-                    letters[3 * i + 2].text = "";
-                    letters[3 * i + 1].color = colorArray[3];
-                    break;
-                }
-                case 6:
-                {
-                    letters[3 * i + 0].text = "N";
-                    letters[3 * i + 1].text = "K";
-                    letters[3 * i + 2].text = "N";
-                    letters[3 * i + 0].color = colorArray[7];
-                    letters[3 * i + 1].color = colorArray[6];
-                    letters[3 * i + 2].color = colorArray[7];
-                    break;
-                }
-                case 7:
-                {
-                    letters[3 * i + 0].text = "R";
-                    letters[3 * i + 1].text = "G";
-                    letters[3 * i + 2].text = "N";
-                    letters[3 * i + 0].color = colorArray[1];
-                    letters[3 * i + 1].color = colorArray[3];
-                    letters[3 * i + 2].color = colorArray[7];
-                    break;
-                }
-                case 8:
-                {
-                    letters[3 * i + 0].text = "Y";
-                    letters[3 * i + 1].text = "Y";
-                    letters[3 * i + 2].text = "N";
-                    letters[3 * i + 0].color = colorArray[2];
-                    letters[3 * i + 1].color = colorArray[2];
-                    letters[3 * i + 2].color = colorArray[7];
-                    break;
-                }
-                case 9:
-                {
-                    letters[3 * i + 0].text = "P";
-                    letters[3 * i + 1].text = "R";
-                    letters[3 * i + 2].text = "N";
-                    letters[3 * i + 0].color = colorArray[8];
-                    letters[3 * i + 1].color = colorArray[1];
-                    letters[3 * i + 2].color = colorArray[7];
-                    break;
-                }
-                case 10:
-                {
-                    letters[3 * i + 0].text = "N";
-                    letters[3 * i + 1].text = "K";
-                    letters[3 * i + 2].text = "R";
-                    letters[3 * i + 0].color = colorArray[7];
-                    letters[3 * i + 1].color = colorArray[6];
-                    letters[3 * i + 2].color = colorArray[1];
-                    break;
-                }
-                case 11:
-                {
-                    letters[3 * i + 0].text = "G";
-                    letters[3 * i + 1].text = "K";
-                    letters[3 * i + 2].text = "R";
-                    letters[3 * i + 0].color = colorArray[3];
-                    letters[3 * i + 1].color = colorArray[6];
-                    letters[3 * i + 2].color = colorArray[1];
-                    break;
-                }
-            }
-
-            brackets[i].color = (i == wireComposerIndex) ? colorArray[2] : colorArray[0];
-        }
+        for (int i = 0; i < 12; i++) amounts[i].text = "x" + itemBuffer[i];
+        for (int i = 0; i < 15; i++) brackets[i].text = wireComposerConfig[i] == -1?
+            i == wireComposerIndex ? "<color=#ecdb44ff>> ? <</color>" : "":
+            string.Format(wiresText[wireComposerConfig[i]], i == wireComposerIndex ? "#ecdb44ff": "#e6dfd7ff");
     }
 
     void selectInWireComposer(int item)
@@ -497,21 +376,9 @@ public class script : MonoBehaviour
     {
         for (int i = 0; i < 52; i++) graph[i].transform.localScale = new Vector3(1f, graphInts[i] / 7500f, 1f);
         avgText.text = "Avg: " + divideBy1000(avgAmp);
-        if (avgAmp < 2800)
-        {
-            avgJudg.text = "PASS";
-            avgJudg.color = colorArray[3];
-        }
-        else if (avgAmp < 3200)
-        {
-            avgJudg.text = "WARN";
-            avgJudg.color = colorArray[2];
-        }
-        else
-        {
-            avgJudg.text = "FAIL";
-            avgJudg.color = colorArray[1];
-        }
+        if (avgAmp < 2800) avgJudg.text = "<color=#6ec55cff>PASS</color>";
+        else if (avgAmp < 3200) avgJudg.text = "<color=#ecdb44ff>WARN</color>";
+        else avgJudg.text = "<color=#cb3c3cff>FAIL</color>";
     }
 
 
@@ -617,9 +484,7 @@ public class script : MonoBehaviour
         if (index < 10)
         {
             int ind = 0;
-            for (int i = 0; i < index; i++)
-                if (table[i] != 0)
-                    ind++;
+            for (int i = 0; i < index; i++) if (table[i] != 0) ind++;
             table[index] = 0;
             int old = graphInts[peakIds[ind]];
             graphInts[peakIds[ind]] = Random.Range(2000, 2800);
@@ -664,7 +529,6 @@ public class script : MonoBehaviour
                     midAns += 1 / itemRes[wireComposerConfig[j * 5 + i]];
             if (midAns != 0) ans += 1 / midAns;
         }
-
         return ans;
     }
 
@@ -707,7 +571,7 @@ public class script : MonoBehaviour
         sourceChargeConfig = "";
         for (int i = 0; i < 6; i++)
         {
-            wireConfigs[i].text = colorString[wireIndexes[i] + 5].ToString() + "          " + wireNumbers[i];
+            wireConfigs[i].text = colorString[wireIndexes[i] + 5] + "          " + wireNumbers[i];
             wires[i].color = colorArray[wireIndexes[i] + 5];
         }
 
@@ -732,9 +596,9 @@ public class script : MonoBehaviour
             }
         }
 
-        colorblind.text = colorString[1 + wiresLocal[0]].ToString() + colorString[1 + wiresLocal[1]].ToString() +
-                          "         " + colorString[1 + wiresLocal[2]].ToString() +
-                          colorString[1 + wiresLocal[3]].ToString();
+        colorblind.text = colorString[1 + wiresLocal[0]] + colorString[1 + wiresLocal[1]] +
+                          "         " + colorString[1 + wiresLocal[2]] +
+                          colorString[1 + wiresLocal[3]];
         batteryConfig.text = batteryConfigAns;
 
         for (int i = 0; i < 4; i++)
@@ -744,37 +608,28 @@ public class script : MonoBehaviour
             sourceChargeConfig += colorString[wireIndexes[wireConfig[i]] + 5].ToString();
         }
     }
-
-    int min(int a, int b)
-    {
-        return a > b ? b : a;
-    }
-
+    
     IEnumerator btrIncrement()
     {
-        int batteryCapacity = wireCharge ? 10000 - BTR : min(10000 - BTR, Random.Range(7500, 8500));
+        int batteryCapacity = wireCharge ? 10000 - BTR : Random.Range(7500, 8500);
         while (batteryCapacity > 0)
         {
             yield return new WaitForSeconds(1.44f);
             BTR++;
             batteryCapacity--;
             redrawVariables();
+            if (BTR>9999) yield break;
         }
     }
 
     void redrawInventory()
     {
         string ans = "";
-        for (int i = 0; i < itemNames.Length; i++)
-        {
-            ans += itemNames[i];
-            if (i > 3)
-                ans += (spaces(25 - itemNames[i].Length -
-                               (i == itemNames.Length - 1 ? batteryAmount : itemAmount[i - 4]).ToString().Length - 1) +
-                        "x" + (i == itemNames.Length - 1 ? batteryAmount : itemAmount[i - 4]).ToString());
-            ans += "\n";
-        }
-
+        for (int i = 0; i < itemNames.Length; i++) ans += itemNames[i] + ( 
+            i > 3 ? 
+                new string(' ', 32 - itemNames[i].Length - (i == itemNames.Length - 1 ? batteryAmount : itemAmount[i - 4]).ToString().Length - 1)
+                + "x" + (i == itemNames.Length - 1 ? batteryAmount : itemAmount[i - 4])
+                :"") + "\n";
         inventory.text = ans;
     }
 
@@ -785,7 +640,7 @@ public class script : MonoBehaviour
             chargeDigit++;
             if (chargeDigit != 4) return;
             StartCoroutine(btrIncrement());
-            StartCoroutine(dialogWrapper.appendText("Charging...", colorArray[3]));
+            StartCoroutine(dialogWrapper.PlayDialogSequence("charge"));
             setState(1);
             charging = true;
             chargeDigit = 0;
@@ -795,7 +650,7 @@ public class script : MonoBehaviour
         {
             chargeDigit = 0;
             generateChargeConfigs();
-            StartCoroutine(dialogWrapper.appendText("Failed. New config: " + sourceChargeConfig, colorArray[1]));
+            StartCoroutine(dialogWrapper.PlayDialogSequence("failedconfig", sourceChargeConfig));
             setState(1);
             aeanChange(2);
             check();
@@ -814,7 +669,6 @@ public class script : MonoBehaviour
             setState(0);
             yield return new WaitForSeconds(.2f);
             setState(1);
-            //StartCoroutine(appendText("Pickup message.", colorArray[0]));
             yield return new WaitForSeconds(3f);
             updateFace();
             StartCoroutine(cycle());
@@ -827,7 +681,7 @@ public class script : MonoBehaviour
         }
 
         if (distance == 0 && picked)
-            StartCoroutine(dialogWrapper.appendText("Found power source. Config: " + sourceChargeConfig, colorArray[2]));
+            StartCoroutine(dialogWrapper.PlayDialogSequence("foundpower", sourceChargeConfig));
     }
 
     IEnumerator holding()
@@ -836,12 +690,11 @@ public class script : MonoBehaviour
         yield return new WaitForSeconds(5f);
         if (holdBool)
         {
-            StartCoroutine(dialogWrapper.appendText(picked ? "Put down." : "Picked up.", colorArray[3], false, FontStyle.Normal, false));
+            StartCoroutine(dialogWrapper.PlayDialogSequence(picked ? "placed" : "picked"));
             picked = !picked;
             holdBool = false;
             StartCoroutine(search());
         }
-
         updateFace();
         yield return null;
     }
@@ -855,27 +708,16 @@ public class script : MonoBehaviour
             if (solvedAmount <= solvedModules) continue;
             for (int i = 0; i < 12; i++)
             {
-                if ((i != 5 && i != 6))
-                {
-                    int temp = ((150 / (nonIgnored + 1)) + Random.Range(1, 10)) * (solvedAmount - solvedModules);
-                    itemBuffer[i] += temp;
-                    itemAmount[i] += temp;
-                }
-                else
-                {
-                    int temp = Random.Range(0, 4) * (solvedAmount - solvedModules);
-                    itemBuffer[i] += temp;
-                    itemAmount[i] += temp;
-                }
+                int temp = i != 5 && i != 6? 150 / (nonIgnored + 1) + Random.Range(1, 10): Random.Range(0, 4) * (solvedAmount - solvedModules);
+                itemBuffer[i] += temp;
+                itemAmount[i] += temp;
             }
-
             batteryAmount += Random.Range(0, 5) / 3 * (solvedAmount - solvedModules);
             solvedModules = solvedAmount;
             redrawInventory();
             redrawWireComposerScreen();
         }
     }
-
     void aeanChange(int id)
     {
         switch (id)
@@ -886,27 +728,21 @@ public class script : MonoBehaviour
                 else dAEAN += dAEAN > 1.8f ? 0f : .25f;
                 AEAN -= (int)(Random.Range(initialStep, (int)(1.3f * initialStep)) * dAEAN);
                 break;
-
             // 1: fail().
             case 1:
                 if (dAEAN > 0) dAEAN = -1f;
                 else dAEAN -= dAEAN < -1.8f ? 0f : .25f;
                 AEAN -= (int)(Random.Range(2 * initialStep, 4 * initialStep) * dAEAN);
                 break;
-
             // 2: chargePress(). Penalty for wrong connection.
             case 2: AEAN += Random.Range(300, 600); break;
             // 3: Q release.
             case 3: AEAN += Random.Range(500, 1000); break;
         }
-
         redrawVariables();
     }
 
-    void Awake()
-    {
-        ModuleId = ModuleIdCounter++;
-    }
+    void Awake() { ModuleId = ModuleIdCounter++; }
 
     void Start()
     {
@@ -1010,10 +846,6 @@ public class script : MonoBehaviour
     {
         switch (id)
         {
-            case 0:
-            case 1:
-            case 2:
-            case 5: return 0;
             case 3: return (ABCD[3] + ABCD[33]) * (ABCD[23] + ABCD[13]) % 10;
             case 6: return (ABCD[6] + ABCD[36]) * (ABCD[26] + ABCD[16]) % 10;
             case 4: return 10 * (ABCD[4] + ABCD[14]) / (ABCD[24] + ABCD[34] + 1) % 10;
@@ -1456,7 +1288,7 @@ public class script : MonoBehaviour
                     aeanChange(3);
                     check();
                     updateFace();
-                    StartCoroutine(dialogWrapper.appendText("Dropped.", colorArray[1], false, FontStyle.Normal, false));
+                    StartCoroutine(dialogWrapper.PlayDialogSequence("drop"));
                     StopCoroutine(holding());
                 }
 
@@ -1471,7 +1303,7 @@ public class script : MonoBehaviour
                 }
                 else
                 {
-                    StartCoroutine(dialogWrapper.appendText(picked ? "Put down." : "Picked up.", colorArray[3], false, FontStyle.Normal, false));
+                    StartCoroutine(dialogWrapper.PlayDialogSequence(picked ? "placed" : "picked"));
                     picked = !picked;
                     StartCoroutine(search());
                     updateFace();
@@ -1482,12 +1314,6 @@ public class script : MonoBehaviour
 
     void Update()
     {
-        if (dialogWrapper == null)
-        {
-            Debug.LogError("dialogWrapper is null!");
-            return;
-        }
-        
         if (!selected || dialogWrapper.dialogBusy || ModuleSolved) return;
         if (Input.GetKeyDown(KeyCode.V)) ACTION('V');
         if (Input.GetKeyDown(KeyCode.G)) ACTION('G');
@@ -1497,24 +1323,12 @@ public class script : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow)) ACTION('W');
         if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow)) ACTION('S');
         if (Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Keypad0)) ACTION('0');
-        if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1))
-            if (state == 7 && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))) ACTION('!');
-            else ACTION('1');
-        if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2))
-            if (state == 7 && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))) ACTION('@');
-            else ACTION('2');
-        if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3))
-            if (state == 7 && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))) ACTION('#');
-            else ACTION('3');
-        if (Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4))
-            if (state == 7 && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))) ACTION('$');
-            else ACTION('4');
-        if (Input.GetKeyDown(KeyCode.Alpha5) || Input.GetKeyDown(KeyCode.Keypad5))
-            if (state == 7 && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))) ACTION('%');
-            else ACTION('5');
-        if (Input.GetKeyDown(KeyCode.Alpha6) || Input.GetKeyDown(KeyCode.Keypad6))
-            if (state == 7 && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))) ACTION('^');
-            else ACTION('6');
+        if (Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1)) if (state == 7 && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))) ACTION('!'); else ACTION('1');
+        if (Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2)) if (state == 7 && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))) ACTION('@'); else ACTION('2');
+        if (Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3)) if (state == 7 && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))) ACTION('#'); else ACTION('3');
+        if (Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4)) if (state == 7 && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))) ACTION('$'); else ACTION('4');
+        if (Input.GetKeyDown(KeyCode.Alpha5) || Input.GetKeyDown(KeyCode.Keypad5)) if (state == 7 && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))) ACTION('%'); else ACTION('5');
+        if (Input.GetKeyDown(KeyCode.Alpha6) || Input.GetKeyDown(KeyCode.Keypad6)) if (state == 7 && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))) ACTION('^'); else ACTION('6');
         if (Input.GetKeyDown(KeyCode.Alpha7) || Input.GetKeyDown(KeyCode.Keypad7)) ACTION('7');
         if (Input.GetKeyDown(KeyCode.Alpha8) || Input.GetKeyDown(KeyCode.Keypad8)) ACTION('8');
         if (Input.GetKeyDown(KeyCode.Alpha9) || Input.GetKeyDown(KeyCode.Keypad9)) ACTION('9');
@@ -1522,15 +1336,13 @@ public class script : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.Q) && holdBool && !charging) ACTION('q');
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)) ACTION('E');
         if (Input.GetKeyDown(KeyCode.Backspace)) ACTION('B');
-        //if (Input.GetKeyDown(KeyCode.Home)) StartCoroutine(SOLVE());
     }
 
 #pragma warning disable 414
     private readonly string TwitchHelpMessage =
         @"Use !{0} notice to make AMM notice you. Use !{0} <key sequence> to input keys. To input Shift+<num> use !, @, #, $, %, ^. To input Enter/Return use E or R. To input Backspace use B. Do not put spaces between keys. Example: !{0} ISSSSEDD@E1";
 #pragma warning restore 414
-
-    IEnumerator ProcessTwitchCommand(string Command)
+    public IEnumerator ProcessTwitchCommand(string Command)
     {
         yield return null;
         var commandArgs = Command.ToUpperInvariant().Trim();
@@ -1542,11 +1354,11 @@ public class script : MonoBehaviour
         else if (start)
         {
             if (!commandArgs.RegexMatch("([0-9VGIADWSERBQ!@#$%\\^])+")) yield return "sendtochaterror Сommand is not valid.";
-            for (int i = 0; i < commandArgs.Length; i++) ACTION(commandArgs[i] == 'Q' ? '§' : commandArgs[i]);
+            foreach (var t in commandArgs) ACTION(t == 'Q' ? '§' : t);
         }
     }
 
-    IEnumerator TwitchHandleForcedSolve()
+    public IEnumerator TwitchHandleForcedSolve()
     {
         yield return null;
         yield return SOLVE();
