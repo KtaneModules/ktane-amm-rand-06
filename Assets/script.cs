@@ -118,21 +118,21 @@ public class script : MonoBehaviour
     private string sourceChargeConfig = "";
 
     private static readonly Color[] colorArray = {
-        new Color(230 / 255f, 223 / 255f, 215 / 255f),
-        new Color(203 / 255f, 60 / 255f, 60 / 255f),
-        new Color(236 / 255f, 219 / 255f, 68 / 255f),
-        new Color(110 / 255f, 197 / 255f, 92 / 255f),
-        new Color(098 / 255f, 139 / 255f, 243 / 255f),
-        new Color(220 / 255f, 140 / 255f, 64 / 255f),
-        new Color(088 / 255f, 88 / 255f, 88 / 255f),
-        new Color(139 / 255f, 76 / 255f, 22 / 255f),
-        new Color(178 / 255f, 93 / 255f, 214 / 255f),
-        new Color(159 / 255f, 156 / 255f, 152 / 255f),
-        new Color(217 / 255f, 142 / 255f, 138 / 255f),
-        new Color(104 / 255f, 168 / 255f, 168 / 255f),
-        new Color(106 / 255f, 178 / 255f, 142 / 255f),
-        new Color(102 / 255f, 158 / 255f, 193 / 255f),
-        new Color(168 / 255f, 86 / 255f, 121 / 255f)
+        new Color(230 / 255f, 223 / 255f, 215 / 255f),  //#e6dfd7ff
+        new Color(203 / 255f, 60 / 255f, 60 / 255f),    //#cb3c3cff
+        new Color(236 / 255f, 219 / 255f, 68 / 255f),   //#ecdb44ff
+        new Color(110 / 255f, 197 / 255f, 92 / 255f),   //#6ec55cff
+        new Color(098 / 255f, 139 / 255f, 243 / 255f),  //#628bf3ff
+        new Color(220 / 255f, 140 / 255f, 64 / 255f),   //#dc8c40ff
+        new Color(088 / 255f, 88 / 255f, 88 / 255f),    //#585858ff
+        new Color(139 / 255f, 76 / 255f, 22 / 255f),    //#8b4c16ff
+        new Color(178 / 255f, 93 / 255f, 214 / 255f),   //#b25dd6ff
+        new Color(159 / 255f, 156 / 255f, 152 / 255f),  //#9f9c98ff
+        new Color(217 / 255f, 142 / 255f, 138 / 255f),  //#d98e8aff
+        new Color(104 / 255f, 168 / 255f, 168 / 255f),  //#68a8a8ff
+        new Color(106 / 255f, 178 / 255f, 142 / 255f),  //#6ab28eff
+        new Color(102 / 255f, 158 / 255f, 193 / 255f),  //#669ec1ff
+        new Color(168 / 255f, 86 / 255f, 121 / 255f)    //#a85679ff
     };
 
     private readonly string[] wiresText = {
@@ -149,6 +149,12 @@ public class script : MonoBehaviour
         "<color={0}>#</color><color=#8b4c16ff>N</color><color=#585858ff>K</color><color=#cb3c3cff>R</color><color={0}>#</color>",
         "<color={0}>#</color><color=#6ec55cff>G</color><color=#585858ff>K</color><color=#cb3c3cff>R</color><color={0}>#</color>"
     };
+
+    private bool VGopened;
+    private int drops;
+    private int batFails;
+    private int wireFails;
+    
     
     string divideBy1000(int num)
     {
@@ -452,19 +458,22 @@ public class script : MonoBehaviour
         yield return null;
     }
 
-    void check()
+    bool check()
     {
         if (AEAN >= 12000)
         {
             LOCK();
-            return;
+            return false;
         }
 
         bool judge = true;
         for (int i = 0; i < 20; i++)
-            if (table[i] == 1) return;
+            if (table[i] == 1) return true;
             else if (table[i] == 1) judge = false;
-        if ((AEAN < 2000 || judge) && (BTR > 499 || charging)) StartCoroutine(SOLVE());
+        if ((AEAN < 2000 || judge) && (BTR > 499 || charging)) {StartCoroutine(SOLVE());
+            return false;
+        }
+        return true;
     }
 
     void updateFace()
@@ -479,7 +488,7 @@ public class script : MonoBehaviour
         else if (AEAN < 12000) faceID = 12;
     }
 
-    void pass(int index)
+    void pass(int index, bool fromZero = false)
     {
         if (index < 10)
         {
@@ -497,6 +506,7 @@ public class script : MonoBehaviour
         }
         else
         {
+            fromZero = table[index] == 1;
             table[index] = 0;
             for (int i = 0; i < 10; i++) itemAmount[i] = itemBuffer[i];
             redrawInventory();
@@ -506,16 +516,71 @@ public class script : MonoBehaviour
         aeanChange(0);
         setState(1);
         updateFace();
-        check();
+        if (check())
+        {
+            switch (index)
+            {
+                case 0: case 1: case 2: case 5:
+                    StartCoroutine(
+                        dialogWrapper.playRandom(
+                            new[]
+                            {
+                                "BScorrect1",
+                                AEAN > 5500 ? "BScorrect2H" : "BScorrect2L"
+                            }
+                        )
+                    ); break;
+                case 3: case 6:
+                    StartCoroutine(dialogWrapper.PlayDialogSequence("SHcorrect")); break;
+                case 4: StartCoroutine(dialogWrapper.PlayDialogSequence(AEAN > 5500 ? "MEcorrectH" : "MEcorrectL"));
+                    break;
+                case 7: case 8: case 9: StartCoroutine(
+                    dialogWrapper.playRandom(
+                        new[]
+                        {
+                            AEAN > 5500 ? "CScorrect1H" : "CScorrect1L",
+                            AEAN > 5500 ? "CScorrect2H" : "CScorrect2L"
+                        }
+                    )
+                ); break;
+                case 10: case 11:  StartCoroutine(dialogWrapper.PlayDialogSequence(fromZero?"HVOcorrect0":AEAN>5500?"HLVOcorrectH":"HLVOcorrectL", "arm")); break;
+                case 12: case 13:  StartCoroutine(dialogWrapper.PlayDialogSequence(fromZero?"HVOcorrect0":AEAN>5500?"HLVOcorrectH":"HLVOcorrectL", "leg")); break;
+                case 14:           StartCoroutine(dialogWrapper.PlayDialogSequence(fromZero?"HVOcorrect0":AEAN>5500?"HLVOcorrectH":"HLVOcorrectL", "tail")); break;
+                case 15: case 16:  StartCoroutine(dialogWrapper.PlayDialogSequence(fromZero?"LVOcorrect0":AEAN>5500?"HLVOcorrectH":"HLVOcorrectL", "hand")); break;
+                case 17: case 18:  StartCoroutine(dialogWrapper.PlayDialogSequence(fromZero?"LVOcorrect0":AEAN>5500?"HLVOcorrectH":"HLVOcorrectL", "foot")); break;
+                case 19:           StartCoroutine(dialogWrapper.PlayDialogSequence(fromZero?"LVOcorrect0":AEAN>5500?"HLVOcorrectH":"HLVOcorrectL", "tail")); break;
+            }
+        }
     }
 
-    void fail(int index)
+    void fail(int index, bool fromZero = false)
     {
         if (index > 9) refreshWireComposer();
         aeanChange(1);
         setState(1);
         updateFace();
-        check();
+        if (check())
+        {
+            if (AEAN < 10500)
+            {
+                switch (index)
+                {
+                    case 0: case 1: case 2: case 5: StartCoroutine(dialogWrapper.PlayDialogSequence("BSwrong")); break;
+                    case 3: case 6:                 StartCoroutine(dialogWrapper.PlayDialogSequence("SHwrong")); break;
+                    case 4:                         StartCoroutine(dialogWrapper.PlayDialogSequence("MEwrong")); break;
+                    case 7: case 8: case 9:         StartCoroutine(dialogWrapper.PlayDialogSequence(AEAN > 5500 ? "CSwrongH" : "CSwrongL")); break;
+                    case 10: case 11:               StartCoroutine(dialogWrapper.PlayDialogSequence(fromZero?"HLVOwrong0":"HLVOwrong", "arm")); break;
+                    case 12: case 13:               StartCoroutine(dialogWrapper.PlayDialogSequence(fromZero?"HLVOwrong0":"HLVOwrong", "leg")); break;
+                    case 14: case 19:               StartCoroutine(dialogWrapper.PlayDialogSequence(fromZero?"HLVOwrong0":"HLVOwrong", "tail")); break;
+                    case 15: case 16:               StartCoroutine(dialogWrapper.PlayDialogSequence(fromZero?"HLVOwrong0":"HLVOwrong", "hand")); break;
+                    case 17: case 18:               StartCoroutine(dialogWrapper.PlayDialogSequence(fromZero?"HLVOwrong0":"HLVOwrong", "foot")); break;
+                }
+            }
+            else
+            {
+                StartCoroutine(dialogWrapper.PlayDialogSequence("themostexcitingpart"));
+            }
+        }
     }
 
     float resistance()
@@ -640,7 +705,17 @@ public class script : MonoBehaviour
             chargeDigit++;
             if (chargeDigit != 4) return;
             StartCoroutine(btrIncrement());
-            StartCoroutine(dialogWrapper.PlayDialogSequence("charge"));
+            if (wireCharge) StartCoroutine(
+                dialogWrapper.playSequence(
+                    new[]
+                    {
+                        new[] { "charge" },
+                        new[] { "supplysucceded", divideBy100(BTR) },
+                        new[] {AEAN>5500?"supply2H":BTR>200?"supply2LH":"supply2LL"}
+                    }
+                )
+            );
+            else StartCoroutine(dialogWrapper.playSequence(new[]{new[]{"charge"}, new[]{"batterysucceded"}}));
             setState(1);
             charging = true;
             chargeDigit = 0;
@@ -650,7 +725,25 @@ public class script : MonoBehaviour
         {
             chargeDigit = 0;
             generateChargeConfigs();
-            StartCoroutine(dialogWrapper.PlayDialogSequence("failedconfig", sourceChargeConfig));
+            //StartCoroutine(dialogWrapper.PlayDialogSequence("failedconfig", sourceChargeConfig));
+
+            if (wireCharge)
+            {
+                wireFails++;
+                StartCoroutine(dialogWrapper.PlayDialogSequence(wireFails==1?"supplyfailed0":"supplyfailed", sourceChargeConfig));
+            }
+            else
+            {
+                batFails++;
+                switch (batFails)
+                {
+                    case 1: StartCoroutine(dialogWrapper.PlayDialogSequence(AEAN>5500?"batteryfailed1H":"batteryfailed1L")); break;
+                    case 2: StartCoroutine(dialogWrapper.PlayDialogSequence(AEAN>5500?"batteryfailed2H":"batteryfailed2L")); break;
+                    case 3: StartCoroutine(dialogWrapper.PlayDialogSequence("batteryfailed3")); break;
+                    default: StartCoroutine(dialogWrapper.PlayDialogSequence("batteryfailed")); break;
+                }
+            }
+            
             setState(1);
             aeanChange(2);
             check();
@@ -672,6 +765,7 @@ public class script : MonoBehaviour
             yield return new WaitForSeconds(3f);
             updateFace();
             StartCoroutine(cycle());
+            StartCoroutine(dialogWrapper.PlayDialogSequence("picked"));
         }
 
         while (picked && distance != 0)
@@ -681,7 +775,12 @@ public class script : MonoBehaviour
         }
 
         if (distance == 0 && picked)
-            StartCoroutine(dialogWrapper.PlayDialogSequence("foundpower", sourceChargeConfig));
+            StartCoroutine(dialogWrapper.PlayDialogSequence(
+                "foundpower", 
+                AEAN>5500?"Put me down, <b>please</b>.":"Could you put me down now?",
+                sourceChargeConfig, 
+                AEAN>5500?"Put me down now.":"Please put me down."
+            ));
     }
 
     IEnumerator holding()
@@ -690,7 +789,7 @@ public class script : MonoBehaviour
         yield return new WaitForSeconds(5f);
         if (holdBool)
         {
-            StartCoroutine(dialogWrapper.PlayDialogSequence(picked ? "placed" : "picked"));
+            StartCoroutine(dialogWrapper.PlayDialogSequence(picked ? "placed" : "pickedWarning"));
             picked = !picked;
             holdBool = false;
             StartCoroutine(search());
@@ -858,11 +957,27 @@ public class script : MonoBehaviour
         switch (action)
         {
             case 'V':
+                if (!VGopened)
+                {
+                    VGopened = true;
+                    StartCoroutine(dialogWrapper.playSequence(new[] {
+                            new[] { "gv", "voltages" },
+                            new[] { "gv3normal" }
+                        }));
+                }
                 states[state].SetActive(false);
                 state = state == 3 ? 1 : 3;
                 states[state].SetActive(true);
                 return;
             case 'G':
+                if (!VGopened)
+                {
+                    VGopened = true;
+                    StartCoroutine(dialogWrapper.playSequence(new[] {
+                        new[] { "gv", "vibrodiagnostics graph" },
+                        new[] { "gv3normal" }
+                    }));
+                }
                 states[state].SetActive(false);
                 state = state == 2 ? 1 : 2;
                 states[state].SetActive(true);
@@ -1290,6 +1405,14 @@ public class script : MonoBehaviour
                     updateFace();
                     StartCoroutine(dialogWrapper.PlayDialogSequence("drop"));
                     StopCoroutine(holding());
+                    drops++;
+                    switch (drops)
+                    {
+                        case 1: StartCoroutine(dialogWrapper.PlayDialogSequence("dropped1")); break;
+                        case 2: StartCoroutine(dialogWrapper.PlayDialogSequence("dropped2")); break;
+                        default: StartCoroutine(dialogWrapper.PlayDialogSequence("dropped3")); break;
+                    }
+
                 }
 
                 return;
@@ -1303,7 +1426,7 @@ public class script : MonoBehaviour
                 }
                 else
                 {
-                    StartCoroutine(dialogWrapper.PlayDialogSequence(picked ? "placed" : "picked"));
+                    StartCoroutine(dialogWrapper.PlayDialogSequence(picked ? "placed" : "pickedWarning"));
                     picked = !picked;
                     StartCoroutine(search());
                     updateFace();

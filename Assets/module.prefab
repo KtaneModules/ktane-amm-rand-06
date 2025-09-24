@@ -15869,7 +15869,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b79006dc8391be2418bd9f63e56b0b05, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lines: {fileID: 102659672344667412}
+  screenText: {fileID: 102659672344667412}
+  dialogText: {fileID: 4900000, guid: 127c6a92869e4394abd181f8ddecc392, type: 3}
   dialogBusy: 0
 --- !u!114 &114215053165338424
 MonoBehaviour:
