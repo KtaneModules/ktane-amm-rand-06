@@ -40,7 +40,7 @@
         ]
     },
 	{
-        "name": "foundpower",
+        "name": "foundpowerWarning",
         "dialog": [
             {
                 "text": ["<color=#6ec55cff>Found power source. Config: {0}</color>"],
@@ -50,7 +50,7 @@
         ]
     },
 	{
-        "name": "picked",
+        "name": "pickedWarning",
         "dialog": [
             {
                 "text": ["<color=#6ec55cff>Picked up.</color>"],
@@ -105,26 +105,12 @@
 		]
 	},
 	{
-		"name": "g1",
+		"name": "gv",
 		"dialog":[
 			{
-				"text": ["Could you show me your vibrodiagnostics graph?"],
+				"text": ["Could you show me your {0}?"],
 				"rightAlign": true
-			}
-		]
-	},
-	{
-		"name": "v1",
-		"dialog":[
-			{
-				"text": ["Could you show me your voltages?"],
-				"rightAlign": true
-			}
-		]
-	},
-	{
-		"name": "gv2",
-		"dialog":[
+			},
 			{
 				"text": ["..."],
 				"rightAlign": false
@@ -181,7 +167,7 @@
 				"rightAlign": false
 			},
 			{
-				"text": ["<color=#6ec55cff>...I'm getting perfect feedback. No issues present.</color>"],
+				"text": ["...I'm getting perfect feedback. No issues present."],
 				"rightAlign": false
 			},
 			{
@@ -230,6 +216,14 @@
 			{
 				"text": ["<color=#cb3c3cff>Ą̷Ʀ̴ƴ̵Ƕ̵Ǣ̸ɇ̸%̷Ƣ̴S̷T̵O̶P̸STOPSTOP</color>"],
 				"rightAlign": false
+			},
+			{
+				"text": [
+					"Sorry, sorry!",
+					"Ack! I'm sorry!!",
+					"Sorry, sorry, backing up now..."
+				],
+				"rightAlign": false
 			}
 		]
 	},
@@ -242,5 +236,540 @@
 			}
 		]
 	},
-	
+	{
+		"name": "SHwrong",
+		"dialog":[
+			{
+				"text": ["¥̶„̵Ð̷̶‹I̴T¨H̸URTS.!̴!q̷Y̵ñ̸«̴T̷"],
+				"rightAlign": false
+			},
+			{
+				"text": [
+					"Sorry, sorry!",
+					"Ack! I'm sorry!!",
+					"Sorry, sorry, backing up now..."
+				],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "MEcorrectH",
+		"dialog":[
+			{
+				"text": ["How are you even <b>alive</b> after all this?"],
+				"rightAlign": false
+			},
+			{
+				"text": ["Pure chance."],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "MEcorrectL",
+		"dialog":[
+			{
+				"text": ["How are you even <b>alive</b> after all this?"],
+				"rightAlign": true
+			},
+			{
+				"text": ["Pure chance. And some previous self-repairs, but there wasn't much I could do once my limbs stopped working."],
+				"rightAlign": false
+			},
+			{
+				"text": ["It's not like I was just waiting for death before, but... well, that's where things were most likely headed either way."],
+				"rightAlign": false
+			},
+			{
+				"text": ["..."],
+				"rightAlign": false
+			},
+			{
+				"text": ["...And... and you found me."],
+				"rightAlign": false
+			},
+		]
+	},
+	{
+		"name": "MEwrong",
+		"dialog":[
+			{
+				"text": ["˜̷ºST̴OP»̶ž̸›̷ß̴þ̵.I̸T¸H̶U̸RTS|̶ª̸Ó̶ô̵Å̸¦̷"],
+				"rightAlign": false
+			},
+			{
+				"text": [
+					"Sorry, sorry!",
+					"Ack! I'm sorry!!",
+					"Sorry, sorry, backing up now..."
+				],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "CScorrect1H",
+		"dialog":[
+			{
+				"text": ["And... that should be just about done. Any better?"],
+				"rightAlign": true
+			},
+			{
+				"text": ["One moment. Starting up the coolant flow."],
+				"rightAlign": false
+			},
+			{
+				"text": ["..."],
+				"rightAlign": false
+			},
+			{
+				"text": ["...Yes. Temperatures are improving already."],
+				"rightAlign": false
+			},
+		]
+	},
+	{
+		"name": "CScorrect1L",
+		"dialog":[
+			{
+				"text": ["And... that should be just about done. Any better?"],
+				"rightAlign": true
+			},
+			{
+				"text": ["One moment. Starting up the coolant flow."],
+				"rightAlign": false
+			},
+			{
+				"text": ["..."],
+				"rightAlign": false
+			},
+			{
+				"text": ["...Yes. Temperatures are improving already."],
+				"rightAlign": false
+			},
+			{
+				"text": ["It... really <b>feels</b> better. Not sure how to describe that without anything to compare it to. It's like... well, it's like I can \"breathe\" again."],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "CScorrect2H",
+		"dialog":[
+			{
+				"text": ["...!"],
+				"rightAlign": false
+			},
+			{
+				"text": ["Huh. Whatever you did, it's working. Cooling systems are back online."],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "CScorrect2L",
+		"dialog":[
+			{
+				"text": ["...!"],
+				"rightAlign": false
+			},
+			{
+				"text": ["Huh. Whatever you did, it's working. Cooling systems are back online."],
+				"rightAlign": false
+			},
+			{
+				"text": ["...Wow... That feels good. Didn't realize how close I was to overheating."],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "CSwrongH",
+		"dialog":[
+			{
+				"text": ["Å̵¹̶¼̸#̶+̴œ̸C̷o̴ld-- That's cold! Stop!"],
+				"rightAlign": false
+			},
+			{
+				"text": ["...<b>Please</b> don't do that again."],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "CSwrongL",
+		"dialog":[
+			{
+				"text": [
+					"Hey. Careful. You're blowing the dust further in.",
+					"Stop-- Stop. You're wearing down my fans. Back up and try not to do that again.",
+					"<b>Slow down.</b> Whatever you're doing, it's freezing the system."
+				],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "picked",
+		"dialog":[
+			{
+				"text": ["St-- Stop, STOP, WHAT ARE YOU DOING?"],
+				"rightAlign": false
+			},
+			{
+				"text": ["Hey, easy, your battery is low. I need to bring you to a... I don't know, a charging port."],
+				"rightAlign": true
+			},
+			{
+				"text": ["This won't take too long, I promise."],
+				"rightAlign": true
+			},
+			{
+				"text": ["I can-- I-- <b>Put me down.</b>"],
+				"rightAlign": false
+			},
+			{
+				"text": ["And then what? How are you supposed to charge if you can't move?"],
+				"rightAlign": true
+			},
+			{
+				"text": ["..."],
+				"rightAlign": false
+			},
+			{
+				"text": ["...Yeah. So let's just get this done, okay? I'll try to be quick."],
+				"rightAlign": true
+			},
+		]
+	},
+	{
+		"name": "dropped1",
+		"dialog":[
+			{
+				"text": ["Wait, don't--"],
+				"rightAlign": false
+			},
+			{
+				"text": ["AÂ̵ï̷£̴@̴Æ̸̴Å̴ᾛ̸!̵!!"],
+				"rightAlign": false
+			},
+			{
+				"text": ["Oh-- Oh my gosh, I'm so sorry! Are you okay?"],
+				"rightAlign": true
+			},
+			{
+				"text": [" .̸͇̓.̸̨́.̴̼͐I'm..̴. ̴Don't do that again. <b>Please.</b>"],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "dropped2",
+		"dialog":[
+			{
+				"text": ["- à̷̵̸®̵̴̵̷̸̵€̸,̵̵̵S̴̶̵t̵̴̴op it! You're hurting me!!"],
+				"rightAlign": false
+			},
+			{
+				"text": ["I'm-- I'm really sorry!"],
+				"rightAlign": true
+			}
+		]
+	},
+	{
+		"name": "dropped3",
+		"dialog":[
+			{
+				"text": ["S̴T̴O̸P̵.̸"],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "HVOcorrect0",
+		"dialog":[
+			{
+				"text": ["Try moving your {0} now."],
+				"rightAlign": true
+			},
+			{
+				"text": ["..."],
+				"rightAlign": true
+			},
+			{
+				"text": ["Any better?"],
+				"rightAlign": true
+			},
+			{
+				"text": ["...Yeah. Much better."],
+				"rightAlign": false
+			},
+			{
+				"text": ["That's good."],
+				"rightAlign": true
+			},
+		]
+	},
+	{
+		"name": "LVOcorrect0",
+		"dialog":[
+			{
+				"text": ["Alright, move your {0} for me?"],
+				"rightAlign": true
+			},
+			{
+				"text": ["Works great."],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "HLVOcorrectH",
+		"dialog":[
+			{
+				"text": ["...Your {0} still hurting at all?"],
+				"rightAlign": true
+			},
+			{
+				"text": ["Not anymore."],
+				"rightAlign": false
+			},
+			{
+				"text": ["Cool."],
+				"rightAlign": true
+			}
+		]
+	},
+	{
+		"name": "HLVOcorrectL",
+		"dialog":[
+			{
+				"text": ["...Your {0} still hurting at all?"],
+				"rightAlign": true
+			},
+			{
+				"text": ["Not anymore."],
+				"rightAlign": false
+			},
+			{
+				"text": ["Whatever you did... uh... good job doing that."],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "HLVOwrong0",
+		"dialog":[
+			{
+				"text": ["Try to move your {0}."],
+				"rightAlign": true
+			},
+			{
+				"text": ["S̴ti̸l̵l.̶.. Still hurts."],
+				"rightAlign": false
+			},
+			{
+				"text": ["Ah-- sorry about that."],
+				"rightAlign": true
+			}
+		]
+	},
+	{
+		"name": "HLVOwrong",
+		"dialog":[
+			{
+				"text": ["-̴-̶ø̵æ̷̶ë̸!̷!"],
+				"rightAlign": false
+			},
+			{
+				"text": ["Still hurts?"],
+				"rightAlign": true
+			},
+			{
+				"text": [".̷.̴.Yep."],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "foundpower",
+		"dialog":[
+			{
+				"text": ["Over there. Power supply. {0}"],
+				"rightAlign": false
+			},
+			{
+				"text": ["Wait, how do I connect you to it? What's the configuration?"],
+				"rightAlign": true
+			},
+			{
+				"text": ["It should be {1}. {2} *Gently.*"],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "supplyfailed0",
+		"dialog":[
+			{
+				"text": ["I don't think that was right."],
+				"rightAlign": false
+			},
+			{
+				"text": ["Try... Hm. Try {0} this time."],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "supplyfailed",
+		"dialog":[
+			{
+				"text": ["Still wrong... Try {0}."],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "supplysucceded",
+		"dialog":[
+			{
+				"text": ["Alright... that should be good. How's your battery?"],
+				"rightAlign": true
+			},
+			{
+				"text": ["...{0}% and climbing."],
+				"rightAlign": false
+			},
+		]
+	},
+	{
+		"name": "supply2LH",
+		"dialog":[
+			{
+				"text": ["Which is a lot more relieving than you'd think. I wasn't sure if my battery could still charge at all by now."],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "supply2LL",
+		"dialog":[
+			{
+				"text": ["Cutting it a bit close there. But I wasn't sure if my battery could still charge at all, so I'll say this is well within acceptable."],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "supply2H",
+		"dialog":[
+			{
+				"text": ["Nice."],
+				"rightAlign": true
+			}
+		]
+	},
+	{
+		"name": "batterysucceded",
+		"dialog":[
+			{
+				"text": ["Okay... This should last you a bit longer."],
+				"rightAlign": true
+			}
+		]
+	},
+	{
+		"name": "batteryfailed1H",
+		"dialog":[
+			{
+				"text": ["Wait, I don't think that's connected right. Start over."],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "batteryfailed1L",
+		"dialog":[
+			{
+				"text": ["Hey. Those aren't connected right."],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "batteryfailed2H",
+		"dialog":[
+			{
+				"text": ["Still wrong. Just try again."],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "batteryfailed2L",
+		"dialog":[
+			{
+				"text": ["That's connected wrong. Just try again."],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "batteryfailed3",
+		"dialog":[
+			{
+				"text": ["Still wrong..."],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "batteryfailed",
+		"dialog":[
+			{
+				"text": ["..."],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "themostexcitingpart",
+		"dialog":[
+			{
+				"text": [
+					"Š̷.t̸op̶...",
+					"P̴l̷e̴a̴s̸*̷e̸̴,̴ ̴s̵top̸!!",
+					"D̴^̸°̸D̴0̷n̴'̵t̷-̷-̵ ̷Do̵n̴'̷t̶ ̶hu̸˜r̸t̵ ̴m̴e̷,̸!",
+					"G̷,̶o̴ ̵.á̷ª̴w̸“̵ã̷ÿ-̷‰̶·GÓ̶ .̵ÂW̶,̴AY̵!!",
+					"œ̷*̷‰Lé̷‚̵ã̴v̴e̸-̶̵,m̵è̶¦̸¦̵ ̸¦̴a̴lðn̵e̸!̵!",
+					"µ̷‰̵¡D̶Ó̸,̵N̴'̴T̵¹̵.̴T̵ØÚ̸CH̸ ̸¡̸,M̴Ê̶„̶!̵",
+					",̸×̵H̴*Ù̵R̸T̵Š̴«̷°̶ã̴˜̵¡HÛ̷,R̶T̵S̸.̶æ̸",
+					"~̷,Ï¡̷ ̷•̴D̵.̶ON̸'T̷,̷¦̴̴ ̵W̵=Àn̵‰̸„̷_̷_̶",
+					"ï̴,̴ I̵!̴ ̶.̵ ̵D̷,̴Ø̶N̶'T̸ ̴»̵W̷Ä̸•̶NT̵ ̶,̴¢TÔ̸-̷‰̶̸.D̶ I̴E̸,!£̵̷,̶x̷/̷",
+					"/̷,̸ î̵I̸ ̴.̶ ̶D̵Ô̴,̶N̶-̸'̴'T̵ ̶¬̶W̵Á̷•N̵,T̷ ̴,̵/̴T̷O̸-̶÷̷„̵.̵D̷I-Ê̴.̵Ê̶¡̸,̵*̸/̴",
+					"¡̵ ̴/Î̵ ̵/̵D.̴ÔN̸-̷'T̸¯̵-̷•W̷;̶ÁN̸-T̸̵ ̶«T̵O-̷•̷-̸´D̷.IÊ̸!̴.̶¡̷,̵¶̴"
+				],
+				"rightAlign": false
+			}
+		]
+	},
+	{
+		"name": "EMOTIONAL DAMAGE",
+		"dialog":[
+			{
+				"text": [
+					"&̴Û̷¹̶¼̷#̴+̶Ù̸‹̸ƒ̶f̴i̸̵!!",
+					"à̵®̴å̶¾̸€̶‡̵U̷y̵ú̸!!!",
+					"Ä̶Æ̷ì̴Ì̷Ü̴š̴é̶l̸Ú̷ô̴!!",
+					"œ̷¾̴å̵,̶þ̸)̸ô̸Ã̸,̴Å̸å̷!!!",
+					"Æ̷u̵Å̵Þ̶›̸ç̶Í̸ß̷!!",
+					"t̵̴Å̶ž̵6̷1̷Ç̵š̷ˆ̶·̷m̵$̸!!",
+					"Â̴ï̴£̸,@̵Æ̷̷-D̶!̷!!"
+				],
+				"rightAlign": false
+			}
+		]
+	},
 ]}
