@@ -1156,6 +1156,7 @@ GameObject:
   - component: {fileID: 4856898384762404}
   - component: {fileID: 23556274776969182}
   - component: {fileID: 102659672344667412}
+  - component: {fileID: 114211750370646888}
   m_Layer: 0
   m_Name: line0
   m_TagString: Untagged
@@ -14574,10 +14575,48 @@ TextMesh:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1407676698096748}
-  m_Text: 
+  m_Text: '1
+
+    2
+
+    3
+
+    4
+
+    5
+
+    6
+
+    7
+
+    8
+
+    9
+
+    10
+
+    11
+
+    12
+
+    13
+
+    14
+
+    15
+
+    16
+
+    17
+
+    18
+
+    19
+
+    20'
   m_OffsetZ: 0
   m_CharacterSize: 0.004
-  m_LineSpacing: 1
+  m_LineSpacing: 0.92
   m_Anchor: 6
   m_Alignment: 0
   m_TabSize: 4
@@ -15872,6 +15911,19 @@ MonoBehaviour:
   screenText: {fileID: 102659672344667412}
   dialogText: {fileID: 4900000, guid: 127c6a92869e4394abd181f8ddecc392, type: 3}
   dialogBusy: 0
+--- !u!114 &114211750370646888
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1407676698096748}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - GUI/KT 3D Text
 --- !u!114 &114215053165338424
 MonoBehaviour:
   m_ObjectHideFlags: 1

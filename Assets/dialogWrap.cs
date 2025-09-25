@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using KeepCoding;
 using Newtonsoft.Json;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -37,7 +36,6 @@ public class dialogWrap : MonoBehaviour
     
     public IEnumerator PlayDialogSequence(string sequenceName)
     {
-        while (dialogBusy);
         if (!dialogBusy){
             dialogBusy = true;
             DialogEntry dialog0 = dialogs.FirstOrDefault(e => e.name == sequenceName);
@@ -57,7 +55,6 @@ public class dialogWrap : MonoBehaviour
     
     public IEnumerator PlayDialogSequence(string sequenceName, params string[] args)
     {
-        while (dialogBusy);
         if (!dialogBusy)
         {
             dialogBusy = true;
@@ -81,9 +78,10 @@ public class dialogWrap : MonoBehaviour
         if (!appendBusy)
         {
             appendBusy = true;
-            if (!string.IsNullOrEmpty(screenText.text)) { screenText.text += '\n'; }
+            if (!string.IsNullOrEmpty(screenText.text)) { screenText.text += '\n'; if (screenText.text.Split('\n').Length > 20) screenText.text = screenText.text.Substring(screenText.text.IndexOf('\n')+1);}
             
             Stack<string> openTags = new Stack<string>();
+            Stack<string> closingTags = new Stack<string>();
             int visibleLength = 0;
             string currentLine = "";
             int reverseInsertIndex = 0;
@@ -96,18 +94,22 @@ public class dialogWrap : MonoBehaviour
                     if (tagEnd != -1)
                     {
                         string tag = text.Substring(i, tagEnd - i + 1);
-                        if (tag.StartsWith("</")) { if (openTags.Count > 0) {
-                            reverseInsertIndex += openTags.Pop().Length;
+                        if (tag.StartsWith("</")) { if (closingTags.Count > 0) {
+                            reverseInsertIndex += closingTags.Pop().Length;
+                            openTags.Pop();
+                            //Debug.Log(reverseInsertIndex);
                         } }
                         else
                         {
                             int endingTagStart = text.IndexOf("</"+tag[1], tagEnd);
                             int endingTagFinish = text.IndexOf('>', text.IndexOf("</"+tag[1], tagEnd) + 1);
                             string endingTag = text.Substring(endingTagStart, endingTagFinish - endingTagStart + 1);
-                            Debug.Log(tag+"test"+endingTag);
-                            currentLine = currentLine.Insert(currentLine.Length + reverseInsertIndex -openTags.Count, tag+endingTag);
+                            //Debug.Log(tag+"test"+endingTag);
+                            currentLine = currentLine.Insert(currentLine.Length + reverseInsertIndex, tag+endingTag);
+                            closingTags.Push(endingTag);
                             openTags.Push(tag);
-                            reverseInsertIndex -= tag.Length;
+                            reverseInsertIndex -= endingTag.Length;
+                            //Debug.Log(reverseInsertIndex);
                         }
                         i = tagEnd;
                         continue;
@@ -115,11 +117,27 @@ public class dialogWrap : MonoBehaviour
                 }
                 if (visibleLength % 39 == 0 && visibleLength > 0)
                 {
+                    
                     screenText.text += '\n';
+                    if (screenText.text.Split('\n').Length > 20) screenText.text = screenText.text.Substring(screenText.text.IndexOf('\n')+1);
                     currentLine = "";
+                    foreach (var element in openTags) currentLine += element;
+                    foreach (var element in closingTags.Reverse()) currentLine += element;
+                    
+
                 }
-                if (anim) yield return new WaitForSeconds(.03f);
-                currentLine = currentLine.Insert(currentLine.Length + reverseInsertIndex - openTags.Count, text[i].ToString());
+                if (anim) yield return new WaitForSeconds( text[i]=='.' || text[i]=='?' || text[i]=='!' || text[i]=='-'?.15f:.03f);
+
+                try
+                {
+                    currentLine = currentLine.Insert(currentLine.Length + reverseInsertIndex, text[i].ToString());
+                    // баг при переносе строки с тегами
+                }
+                catch
+                {
+                    Debug.Log("");
+                }
+            
                 visibleLength++;
                 string displayText = screenText.text;
                 if (rightAlign)
@@ -127,10 +145,11 @@ public class dialogWrap : MonoBehaviour
                     int padding = 39 - (visibleLength % 39 == 0 ? 39 : visibleLength % 39);
                     displayText = displayText.Substring(0,displayText.LastIndexOf('\n')+1)+new string(' ', padding) + currentLine;
                 }
-                else displayText += text[i];
+                else displayText = displayText.Substring(0,displayText.LastIndexOf('\n') + 1) + currentLine;
+                //displayText += text[i];
                 screenText.text = displayText;
             }
-            if (screenText.text.Split('\n').Length > 20) screenText.text = screenText.text.Substring(screenText.text.IndexOf('\n')+1);
+            
             appendBusy = false;
         }
         yield return null;

@@ -320,7 +320,7 @@ public class script : MonoBehaviour
             {
                 voltages[i] = Random.Range(nomVoltages[i] / 2, nomVoltages[i] * 2);
                 while ((float)voltages[i] / nomVoltages[i] >= (i < 5 ? 0.97f : 0.9f) &&
-                       (float)voltages[i] / nomVoltages[i] <= (i < 5 ? 1.03f : 1.1f))
+                       (float)voltages[i] / nomVoltages[i] <= (1.2f))
                     voltages[i] = Random.Range(nomVoltages[i] / 2, nomVoltages[i] * 2);
             }
 
@@ -432,8 +432,7 @@ public class script : MonoBehaviour
         GetComponent<KMSelectable>().OnFocus = null;
         GetComponent<KMSelectable>().OnDefocus = null;
         selected = false;
-        lockAEAN.text = "AMM ran away.\n\n" + lockSentences[Random.Range(0, lockSentences.Length)] + "\n\nAEAN: " +
-                        divideBy100(AEAN);
+        lockAEAN.text = "AMM ran away.\n\n" + lockSentences[Random.Range(0, lockSentences.Length)] + "\n\nAEAN: " + divideBy100(AEAN);
         setState(4);
     }
 
@@ -661,7 +660,7 @@ public class script : MonoBehaviour
             }
         }
 
-        colorblind.text = colorString[1 + wiresLocal[0]] + colorString[1 + wiresLocal[1]] +
+        colorblind.text = "" + colorString[1 + wiresLocal[0]] + colorString[1 + wiresLocal[1]] +
                           "         " + colorString[1 + wiresLocal[2]] +
                           colorString[1 + wiresLocal[3]];
         batteryConfig.text = batteryConfigAns;
@@ -762,10 +761,10 @@ public class script : MonoBehaviour
             setState(0);
             yield return new WaitForSeconds(.2f);
             setState(1);
-            yield return new WaitForSeconds(3f);
+            yield return dialogWrapper.PlayDialogSequence("picked");
             updateFace();
             StartCoroutine(cycle());
-            StartCoroutine(dialogWrapper.PlayDialogSequence("picked"));
+            
         }
 
         while (picked && distance != 0)
@@ -789,7 +788,7 @@ public class script : MonoBehaviour
         yield return new WaitForSeconds(5f);
         if (holdBool)
         {
-            StartCoroutine(dialogWrapper.PlayDialogSequence(picked ? "placed" : "pickedWarning"));
+            yield return (dialogWrapper.PlayDialogSequence(picked ? "placed" : "pickedWarning"));
             picked = !picked;
             holdBool = false;
             StartCoroutine(search());
@@ -831,7 +830,7 @@ public class script : MonoBehaviour
             case 1:
                 if (dAEAN > 0) dAEAN = -1f;
                 else dAEAN -= dAEAN < -1.8f ? 0f : .25f;
-                AEAN -= (int)(Random.Range(2 * initialStep, 4 * initialStep) * dAEAN);
+                AEAN -= (int)(Random.Range(1 * initialStep, (int)(1.5f * initialStep)) * dAEAN);
                 break;
             // 2: chargePress(). Penalty for wrong connection.
             case 2: AEAN += Random.Range(300, 600); break;
@@ -846,6 +845,7 @@ public class script : MonoBehaviour
     void Start()
     {
         distance = Random.Range(150, 301) * 20;
+        //distance = 150;
         AEAN = Random.Range(6000, 8000);
         BTR = Random.Range(10, 1000);
         states[0].SetActive(true);
@@ -965,9 +965,13 @@ public class script : MonoBehaviour
                             new[] { "gv3normal" }
                         }));
                 }
-                states[state].SetActive(false);
-                state = state == 3 ? 1 : 3;
-                states[state].SetActive(true);
+                else
+                {
+                    states[state].SetActive(false);
+                    state = state == 3 ? 1 : 3;
+                    states[state].SetActive(true);
+                }
+
                 return;
             case 'G':
                 if (!VGopened)
@@ -978,9 +982,12 @@ public class script : MonoBehaviour
                         new[] { "gv3normal" }
                     }));
                 }
-                states[state].SetActive(false);
-                state = state == 2 ? 1 : 2;
-                states[state].SetActive(true);
+                else
+                {
+                    states[state].SetActive(false);
+                    state = state == 2 ? 1 : 2;
+                    states[state].SetActive(true);
+                }
                 return;
             case 'I':
                 states[state].SetActive(false);
@@ -1403,14 +1410,15 @@ public class script : MonoBehaviour
                     aeanChange(3);
                     check();
                     updateFace();
-                    StartCoroutine(dialogWrapper.PlayDialogSequence("drop"));
+                    //StartCoroutine(dialogWrapper.PlayDialogSequence("drop"));
                     StopCoroutine(holding());
+                    setState(1);
                     drops++;
                     switch (drops)
                     {
-                        case 1: StartCoroutine(dialogWrapper.PlayDialogSequence("dropped1")); break;
-                        case 2: StartCoroutine(dialogWrapper.PlayDialogSequence("dropped2")); break;
-                        default: StartCoroutine(dialogWrapper.PlayDialogSequence("dropped3")); break;
+                        case 1: StartCoroutine(dialogWrapper.playSequence(new[]{new[]{"drop"},new[]{"dropped1"}})); break;
+                        case 2: StartCoroutine(dialogWrapper.playSequence(new[]{new[]{"drop"},new[]{"dropped2"}})); break;
+                        default: StartCoroutine(dialogWrapper.playSequence(new[]{new[]{"drop"},new[]{"dropped3"}})); break;
                     }
 
                 }
