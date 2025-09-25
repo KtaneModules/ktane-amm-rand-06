@@ -1468,10 +1468,10 @@ public class script : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)) ACTION('E');
         if (Input.GetKeyDown(KeyCode.Backspace)) ACTION('B');
     }
-
+/*
 #pragma warning disable 414
     private readonly string TwitchHelpMessage =
-        @"Use !{0} notice to make AMM notice you. Use !{0} <key sequence> to input keys. To input Shift+<num> use !, @, #, $, %, ^. To input Enter/Return use E or R. To input Backspace use B. Do not put spaces between keys. Example: !{0} ISSSSEDD@E1";
+        @"Use !{0} notice to make AMM notice you. Use !{0} <key sequence> to input keys. To input Shift+<num> use !, @, #, $, %, ^. To input Enter/Return use E or R. To input Backspace use B. To press any button on specific last digit of a timer, use -<letter><digit> (like -D4) Do not put spaces between keys. Example: !{0} IS-S2SSEDD@E1";
 #pragma warning restore 414
     public IEnumerator ProcessTwitchCommand(string Command)
     {
@@ -1484,8 +1484,22 @@ public class script : MonoBehaviour
         }
         else if (start)
         {
-            if (!commandArgs.RegexMatch("([0-9VGIADWSERBQ!@#$%\\^])+")) yield return "sendtochaterror Сommand is not valid.";
-            foreach (var t in commandArgs) ACTION(t == 'Q' ? '§' : t);
+            if (!commandArgs.RegexMatch("([0-9VGIADWSERBQ!@#$%\\^\\-])+")) yield return "sendtochaterror Сommand is not valid.";
+            for (var i=0; i<commandArgs.Length; i++)
+            {
+                if (commandArgs[i] == '-')
+                {
+                    if (commandArgs.Length<i+3 ||
+                        !commandArgs[i+2].ToString().RegexMatch("[0-9]")) yield return "sendtochaterror Сommand is not valid.";
+                    else
+                    {
+                        i += 2;
+                        int lastDigit = -1;
+                        while (lastDigit != commandArgs[i]-'0');
+                        ACTION(commandArgs[i-1] == 'Q' ? '§' : commandArgs[i-1]);
+                    }
+                } else ACTION(commandArgs[i] == 'Q' ? '§' : commandArgs[i]);
+            }
         }
     }
 
@@ -1494,4 +1508,5 @@ public class script : MonoBehaviour
         yield return null;
         yield return SOLVE();
     }
+    */
 }
