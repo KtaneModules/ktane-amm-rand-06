@@ -154,6 +154,7 @@ public class script : MonoBehaviour
     private int drops;
     private int batFails;
     private int wireFails;
+    private bool riskMode;
     
     
     string divideBy1000(int num)
@@ -183,10 +184,16 @@ public class script : MonoBehaviour
         if (!start)
         {
             start = true;
+            if (Input.GetKey(KeyCode.Space))
+            {
+                riskMode = true;
+                Debug.LogFormat("[AMM-041-292 #{0}] Risk mode activated.", ModuleId);
+            }
             faceID = 18;
             face.sprite = faces[faceID];
             yield return new WaitForSeconds(.5f);
             StartCoroutine(dialogWrapper.PlayDialogSequence("initial"));
+            //StartCoroutine(videoScreenPlayer.playStatic(3f));
         }
         else yield return new WaitForSeconds(.5f);
 
@@ -512,6 +519,11 @@ public class script : MonoBehaviour
             refreshWireComposer();
         }
 
+        if (riskMode)
+        {
+            riskMode = false;
+            aeanChange(4);
+        }
         aeanChange(0);
         setState(1);
         updateFace();
@@ -555,6 +567,11 @@ public class script : MonoBehaviour
     void fail(int index, bool fromZero = false)
     {
         if (index > 9) refreshWireComposer();
+        if (riskMode)
+        {
+            riskMode = false;
+            aeanChange(5);
+        }
         aeanChange(1);
         setState(1);
         updateFace();
@@ -836,6 +853,20 @@ public class script : MonoBehaviour
             case 2: AEAN += Random.Range(300, 600); break;
             // 3: Q release.
             case 3: AEAN += Random.Range(500, 1000); break;
+            
+            // 4: pass() with riskMode.
+            case 4:
+                if (dAEAN < 0) dAEAN = 1f;
+                else dAEAN += dAEAN > 1.8f ? 0f : .25f;
+                AEAN -= (int)(Random.Range((int)(2.6f * initialStep), (int)(3.2f * initialStep)) * dAEAN);
+                break;
+            // 5: fail() with riskMode.
+            case 5:
+                if (dAEAN > 0) dAEAN = -1f;
+                else dAEAN -= dAEAN < -1.8f ? 0f : .25f;
+                AEAN -= (int)(Random.Range((int)(2.6f * initialStep), (int)(4f * initialStep)) * dAEAN);
+                break;
+            
         }
         redrawVariables();
     }
@@ -952,8 +983,9 @@ public class script : MonoBehaviour
         }
     }
 
-    void ACTION(char action)
+    void ACTION(char action, int lastDigit = -1)
     {
+        int lastTimerDigit = lastDigit==-1?(int)bombInfo.GetTime() % 10:lastDigit;
         switch (action)
         {
             case 'V':
@@ -962,7 +994,7 @@ public class script : MonoBehaviour
                     VGopened = true;
                     StartCoroutine(dialogWrapper.playSequence(new[] {
                             new[] { "gv", "voltages" },
-                            new[] { "gv3normal" }
+                            new[] { riskMode?"gv3RISK":"gv3normal" }
                         }));
                 }
                 else
@@ -979,7 +1011,7 @@ public class script : MonoBehaviour
                     VGopened = true;
                     StartCoroutine(dialogWrapper.playSequence(new[] {
                         new[] { "gv", "vibrodiagnostics graph" },
-                        new[] { "gv3normal" }
+                        new[] { riskMode?"gv3RISK":"gv3normal" }
                     }));
                 }
                 else
@@ -1053,15 +1085,14 @@ public class script : MonoBehaviour
             case '0':
                 if (state == 5)
                 {
-                    int last = (int)bombInfo.GetTime() % 10;
                     switch (inventoryIndex)
                     {
                         case 0:
                         {
                             //Screwdriver
-                            Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected on {2}. {3}", ModuleId, last,
-                                expectedLastDigit(4), last == expectedLastDigit(4) ? "Correct." : "Wrong.");
-                            if (last == expectedLastDigit(4) && table[4] != 0)
+                            Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected on {2}. {3}", ModuleId, lastTimerDigit,
+                                expectedLastDigit(4), lastTimerDigit == expectedLastDigit(4) ? "Correct." : "Wrong.");
+                            if (lastTimerDigit == expectedLastDigit(4) && table[4] != 0)
                                 pass(4);
                             else fail(4);
                             break;
@@ -1069,9 +1100,9 @@ public class script : MonoBehaviour
                         case 1:
                         {
                             //Hammer
-                            Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected on {2}. {3}", ModuleId, last,
-                                expectedLastDigit(3), last == expectedLastDigit(3) ? "Correct." : "Wrong.");
-                            if (last == expectedLastDigit(3) && table[3] != 0)
+                            Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected on {2}. {3}", ModuleId, lastTimerDigit,
+                                expectedLastDigit(3), lastTimerDigit == expectedLastDigit(3) ? "Correct." : "Wrong.");
+                            if (lastTimerDigit == expectedLastDigit(3) && table[3] != 0)
                                 pass(3);
                             else fail(3);
                             break;
@@ -1081,11 +1112,11 @@ public class script : MonoBehaviour
                             //Compressed Air
                             Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected not on [{2},{3},{4},{5}]. {6}",
                                 ModuleId,
-                                last, ABCD[7], ABCD[17], ABCD[27], ABCD[37],
-                                last != ABCD[7] && last != ABCD[17] && last != ABCD[27] && last != ABCD[37]
+                                lastTimerDigit, ABCD[7], ABCD[17], ABCD[27], ABCD[37],
+                                lastTimerDigit != ABCD[7] && lastTimerDigit != ABCD[17] && lastTimerDigit != ABCD[27] && lastTimerDigit != ABCD[37]
                                     ? "Correct."
                                     : "Wrong.");
-                            if (last != ABCD[7] && last != ABCD[17] && last != ABCD[27] && last != ABCD[37] &&
+                            if (lastTimerDigit != ABCD[7] && lastTimerDigit != ABCD[17] && lastTimerDigit != ABCD[27] && lastTimerDigit != ABCD[37] &&
                                 table[7] != 0)
                                 pass(7);
                             else fail(7);
@@ -1094,9 +1125,9 @@ public class script : MonoBehaviour
                         case 3:
                         {
                             //Oilcan
-                            Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected on 0. {2}", ModuleId, last,
-                                last == 0 ? "Correct." : "Wrong.");
-                            if (last == 0 && table[0] != 0)
+                            Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected on 0. {2}", ModuleId, lastTimerDigit,
+                                lastTimerDigit == 0 ? "Correct." : "Wrong.");
+                            if (lastTimerDigit == 0 && table[0] != 0)
                                 pass(0);
                             else fail(0);
                             break;
@@ -1124,15 +1155,14 @@ public class script : MonoBehaviour
             case '1':
                 if (state == 5)
                 {
-                    int last = (int)bombInfo.GetTime() % 10;
                     switch (inventoryIndex)
                     {
                         case 1:
                         {
                             //Hammer
-                            Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected on {2}. {3}", ModuleId, last,
-                                expectedLastDigit(6), last == expectedLastDigit(6) ? "Correct." : "Wrong.");
-                            if (last == expectedLastDigit(6) && table[6] != 0)
+                            Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected on {2}. {3}", ModuleId, lastTimerDigit,
+                                expectedLastDigit(6), lastTimerDigit == expectedLastDigit(6) ? "Correct." : "Wrong.");
+                            if (lastTimerDigit == expectedLastDigit(6) && table[6] != 0)
                                 pass(6);
                             else fail(6);
                             break;
@@ -1142,11 +1172,11 @@ public class script : MonoBehaviour
                             //Compressed Air
                             Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected not on [{2},{3},{4},{5}]. {6}",
                                 ModuleId,
-                                last, ABCD[8], ABCD[18], ABCD[28], ABCD[38],
-                                last != ABCD[8] && last != ABCD[18] && last != ABCD[28] && last != ABCD[38]
+                                lastTimerDigit, ABCD[8], ABCD[18], ABCD[28], ABCD[38],
+                                lastTimerDigit != ABCD[8] && lastTimerDigit != ABCD[18] && lastTimerDigit != ABCD[28] && lastTimerDigit != ABCD[38]
                                     ? "Correct."
                                     : "Wrong.");
-                            if (last != ABCD[8] && last != ABCD[18] && last != ABCD[28] && last != ABCD[38] &&
+                            if (lastTimerDigit != ABCD[8] && lastTimerDigit != ABCD[18] && lastTimerDigit != ABCD[28] && lastTimerDigit != ABCD[38] &&
                                 table[8] != 0)
                                 pass(8);
                             else fail(8);
@@ -1155,9 +1185,9 @@ public class script : MonoBehaviour
                         case 3:
                         {
                             //Oilcan
-                            Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected on 0. {2}", ModuleId, last,
-                                last == 0 ? "Correct." : "Wrong.");
-                            if (last == 0 && table[1] != 0)
+                            Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected on 0. {2}", ModuleId, lastTimerDigit,
+                                lastTimerDigit == 0 ? "Correct." : "Wrong.");
+                            if (lastTimerDigit == 0 && table[1] != 0)
                                 pass(1);
                             else fail(1);
                             break;
@@ -1184,7 +1214,6 @@ public class script : MonoBehaviour
             case '2':
                 if (state == 5)
                 {
-                    int last = (int)bombInfo.GetTime() % 10;
                     switch (inventoryIndex)
                     {
                         case 2:
@@ -1192,11 +1221,11 @@ public class script : MonoBehaviour
                             //Compressed Air
                             Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected not on [{2},{3},{4},{5}]. {6}",
                                 ModuleId,
-                                last, ABCD[9], ABCD[19], ABCD[29], ABCD[39],
-                                last != ABCD[9] && last != ABCD[19] && last != ABCD[29] && last != ABCD[39]
+                                lastTimerDigit, ABCD[9], ABCD[19], ABCD[29], ABCD[39],
+                                lastTimerDigit != ABCD[9] && lastTimerDigit != ABCD[19] && lastTimerDigit != ABCD[29] && lastTimerDigit != ABCD[39]
                                     ? "Correct."
                                     : "Wrong.");
-                            if (last != ABCD[9] && last != ABCD[19] && last != ABCD[29] && last != ABCD[39] &&
+                            if (lastTimerDigit != ABCD[9] && lastTimerDigit != ABCD[19] && lastTimerDigit != ABCD[29] && lastTimerDigit != ABCD[39] &&
                                 table[9] != 0)
                                 pass(9);
                             else fail(9);
@@ -1205,9 +1234,9 @@ public class script : MonoBehaviour
                         case 3:
                         {
                             //Oilcan
-                            Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected on 0. {2}", ModuleId, last,
-                                last == 0 ? "Correct." : "Wrong.");
-                            if (last == 0 && table[2] != 0)
+                            Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected on 0. {2}", ModuleId, lastTimerDigit,
+                                lastTimerDigit == 0 ? "Correct." : "Wrong.");
+                            if (lastTimerDigit == 0 && table[2] != 0)
                                 pass(2);
                             else fail(2);
                             break;
@@ -1227,16 +1256,15 @@ public class script : MonoBehaviour
                 else if (state == 7) selectInWireComposer(1);
 
                 return;
-
             case '3':
                 if (state == 5)
                 {
                     if (inventoryIndex == 3)
                     {
                         Debug.LogFormat("[AMM-041-292 #{0}] Pressed on {1}, expected on 0. {2}", ModuleId,
-                            (int)bombInfo.GetTime() % 10,
-                            (int)bombInfo.GetTime() % 10 == 0 ? "Correct." : "Wrong.");
-                        if ((int)bombInfo.GetTime() % 10 == 0 && table[5] != 0) pass(5);
+                            lastTimerDigit,
+                            lastTimerDigit == 0 ? "Correct." : "Wrong.");
+                        if (lastTimerDigit == 0 && table[5] != 0) pass(5);
                         else fail(5);
                     }
                 }
@@ -1252,7 +1280,6 @@ public class script : MonoBehaviour
                 else if (state == 7) selectInWireComposer(2);
                 return;
             case '4':
-                if (Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4))
                     if (state == 8 && wireComposerCircuit < 10)
                     {
                         wireComposerCircuit = 3;
@@ -1266,7 +1293,6 @@ public class script : MonoBehaviour
 
                 return;
             case '5':
-                if (Input.GetKeyDown(KeyCode.Alpha5) || Input.GetKeyDown(KeyCode.Keypad5))
                     if (state == 8 && wireComposerCircuit < 10)
                     {
                         wireComposerCircuit = 4;
@@ -1280,7 +1306,6 @@ public class script : MonoBehaviour
 
                 return;
             case '6':
-                if (Input.GetKeyDown(KeyCode.Alpha6) || Input.GetKeyDown(KeyCode.Keypad6))
                     if (state == 8 && wireComposerCircuit < 10)
                     {
                         wireComposerCircuit = 5;
@@ -1468,37 +1493,45 @@ public class script : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)) ACTION('E');
         if (Input.GetKeyDown(KeyCode.Backspace)) ACTION('B');
     }
-/*
+
 #pragma warning disable 414
     private readonly string TwitchHelpMessage =
-        @"Use !{0} notice to make AMM notice you. Use !{0} <key sequence> to input keys. To input Shift+<num> use !, @, #, $, %, ^. To input Enter/Return use E or R. To input Backspace use B. To press any button on specific last digit of a timer, use -<letter><digit> (like -D4) Do not put spaces between keys. Example: !{0} IS-S2SSEDD@E1";
+        @"Use !{0} notice to make AMM notice you. Use !{0} risk to enter Risk mode.
+Use !{0} <key sequence> to input keys. To input Shift+<num> use !, @, #, $, %, ^. 
+To input Enter/Return use E or R. To input Backspace use B. 
+To press any button on specific last digit of a timer, use <letter>-<digit> (like D-4) 
+Use spaces between keys. Example: !{0} I S S-2 S S E D D @ E 1";
 #pragma warning restore 414
     public IEnumerator ProcessTwitchCommand(string Command)
     {
         yield return null;
         var commandArgs = Command.ToUpperInvariant().Trim();
-        Debug.Log(commandArgs);
-        if (commandArgs == "NOTICE" && !start) {
+        if (commandArgs == "NOTICE" || commandArgs == "RISK" && !start)
+        {
+            if (commandArgs == "RISK") {riskMode = true; Debug.LogFormat("[AMM-041-292 #{0}] Risk mode activated.", ModuleId);}
             selected = true;
             yield return onFoc();
         }
         else if (start)
         {
-            if (!commandArgs.RegexMatch("([0-9VGIADWSERBQ!@#$%\\^\\-])+")) yield return "sendtochaterror Сommand is not valid.";
-            for (var i=0; i<commandArgs.Length; i++)
+            if (!commandArgs.RegexMatch("([0-9VGIADWSERBQ!@#$%\\^\\- ])+")) yield return "sendtochaterror Сommand is not valid.";
+            foreach (var command in commandArgs.Split(' '))
             {
-                if (commandArgs[i] == '-')
+                while (dialogWrapper.dialogBusy) yield return new WaitForSeconds(0.1f);
+                if (command.Length == 1 && commandArgs.RegexMatch("([0-9VGIADWSERBQ!@#$%\\^])+"))
                 {
-                    if (commandArgs.Length<i+3 ||
-                        !commandArgs[i+2].ToString().RegexMatch("[0-9]")) yield return "sendtochaterror Сommand is not valid.";
-                    else
+                    ACTION(command[0] == 'Q' ? '§' : command[0]);
+                }
+                else if (command.Length == 3 && commandArgs.RegexMatch("[0-9VGIADWSERBQ!@#$%\\^]-[0-9]"))
+                {
+                    int lastDigit = (int)bombInfo.GetTime()%10;
+                    while (lastDigit != command[2] - '0')
                     {
-                        i += 2;
-                        int lastDigit = -1;
-                        while (lastDigit != commandArgs[i]-'0');
-                        ACTION(commandArgs[i-1] == 'Q' ? '§' : commandArgs[i-1]);
+                        yield return new WaitForSeconds(0.2f);
+                        lastDigit = (int)bombInfo.GetTime()%10;
                     }
-                } else ACTION(commandArgs[i] == 'Q' ? '§' : commandArgs[i]);
+                    ACTION(command[0] == 'Q' ? '§' : command[0], command[2] - '0');
+                }
             }
         }
     }
@@ -1508,5 +1541,5 @@ public class script : MonoBehaviour
         yield return null;
         yield return SOLVE();
     }
-    */
+    
 }
