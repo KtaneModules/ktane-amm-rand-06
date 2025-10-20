@@ -6,7 +6,7 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 
-public class script : MonoBehaviour
+public class ammScript : MonoBehaviour
 {
     static int ModuleIdCounter = 1;
     int ModuleId;
